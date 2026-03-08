@@ -14,9 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        serif: ['"Playfair Display"', '"Noto Serif KR"', "serif"],
-        noto: ['"Noto Sans KR"', "sans-serif"],
-        "noto-serif": ['"Noto Serif KR"', "serif"],
+        sans: ['"Pretendard GOV Variable"', '"Pretendard GOV"', "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        title: ['"Do Hyeon"', "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -77,20 +76,22 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        "fade-in-up": {
-          from: { opacity: "0", transform: "translateY(12px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
+        "bounce-in": {
+          "0%": { opacity: "0", transform: "scale(0.9) translateY(10px)" },
+          "60%": { transform: "scale(1.02) translateY(-2px)" },
+          "100%": { opacity: "1", transform: "scale(1) translateY(0)" },
         },
-        "slide-in": {
-          from: { opacity: "0", transform: "translateX(-8px)" },
-          to: { opacity: "1", transform: "translateX(0)" },
+        "pop": {
+          "0%": { transform: "scale(0.95)" },
+          "50%": { transform: "scale(1.03)" },
+          "100%": { transform: "scale(1)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in-up": "fade-in-up 0.4s ease-out",
-        "slide-in": "slide-in 0.3s ease-out",
+        "bounce-in": "bounce-in 0.4s ease-out",
+        "pop": "pop 0.25s ease-out",
       },
     },
   },

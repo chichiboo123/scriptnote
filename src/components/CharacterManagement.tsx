@@ -29,62 +29,58 @@ export function CharacterManagement({ characters, onChange }: CharacterManagemen
   };
 
   return (
-    <div className="section-card animate-fade-in-up">
+    <div className="section-card animate-bounce-in">
       <div className="section-header">
         <h2 className="section-title">
           <div className="icon-badge bg-secondary/10">
-            <Users className="w-4 h-4 text-secondary" />
+            <Users className="w-5 h-5 text-secondary" />
           </div>
-          {t("characters.title")}
+          🧑‍🤝‍🧑 {t("characters.title")}
           {characters.length > 0 && (
-            <span className="text-xs font-noto font-normal text-muted-foreground ml-1">
-              ({characters.length})
+            <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full ml-1">
+              {characters.length}명
             </span>
           )}
         </h2>
         <button
           onClick={addCharacter}
-          className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+          className="flex items-center gap-1.5 text-sm font-bold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-xl transition-all active:scale-95"
         >
-          <Plus className="w-3.5 h-3.5" />
+          <Plus className="w-4 h-4" />
           {t("characters.add")}
         </button>
       </div>
 
       <div className="section-body">
         {characters.length === 0 ? (
-          <div className="text-center py-8">
-            <Users className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground/60">{t("characters.empty")}</p>
+          <div className="text-center py-10">
+            <span className="text-4xl block mb-3">🎭</span>
+            <p className="text-sm text-muted-foreground">{t("characters.empty")}</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {characters.map((char, idx) => (
+          <div className="space-y-2.5">
+            {characters.map((char) => (
               <div
                 key={char.id}
-                className="flex items-center gap-3 group py-2.5 animate-slide-in"
-                style={{ animationDelay: `${idx * 50}ms` }}
+                className={`flex flex-col sm:flex-row items-start sm:items-center gap-2.5 p-3.5 rounded-2xl border-2 animate-pop ${char.colorClass}`}
               >
-                <div
-                  className={`w-2.5 h-2.5 rounded-full shrink-0 ${char.colorClass.split(" ")[0]}`}
-                />
                 <input
                   value={char.name}
                   onChange={(e) => updateCharacter(char.id, "name", e.target.value)}
                   placeholder={t("characters.name.placeholder")}
-                  className="field-input font-medium w-28 sm:w-36 shrink-0"
+                  className="bg-card/80 rounded-xl px-3 py-2 text-sm font-bold w-full sm:w-32 border-2 border-transparent focus:border-primary/30 focus:outline-none transition-colors"
                 />
                 <input
                   value={char.description}
                   onChange={(e) => updateCharacter(char.id, "description", e.target.value)}
                   placeholder={t("characters.description.placeholder")}
-                  className="field-input flex-1 text-muted-foreground"
+                  className="bg-card/80 rounded-xl px-3 py-2 text-sm flex-1 w-full border-2 border-transparent focus:border-primary/30 focus:outline-none transition-colors"
                 />
                 <button
                   onClick={() => deleteCharacter(char.id)}
-                  className="opacity-0 group-hover:opacity-100 text-muted-foreground/40 hover:text-destructive transition-all p-1"
+                  className="text-muted-foreground/40 hover:text-destructive transition-all p-1.5 rounded-lg hover:bg-destructive/10 shrink-0"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             ))}

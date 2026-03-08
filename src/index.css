@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&display=swap');
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-gov.min.css");
+@import url('https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,53 +7,55 @@
 
 @layer base {
   :root {
-    --background: 40 33% 97%;
-    --foreground: 20 15% 15%;
+    --background: 210 40% 98%;
+    --foreground: 220 20% 20%;
 
-    --card: 40 30% 95%;
-    --card-foreground: 20 15% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 20%;
 
-    --popover: 40 40% 99%;
-    --popover-foreground: 20 15% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 20%;
 
-    --primary: 348 45% 38%;
-    --primary-foreground: 40 30% 97%;
+    --primary: 250 75% 60%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 150 18% 42%;
-    --secondary-foreground: 40 30% 97%;
+    --secondary: 170 65% 48%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 35 20% 91%;
-    --muted-foreground: 20 10% 50%;
+    --muted: 220 20% 93%;
+    --muted-foreground: 220 12% 50%;
 
-    --accent: 40 25% 92%;
-    --accent-foreground: 20 15% 15%;
+    --accent: 40 95% 62%;
+    --accent-foreground: 30 60% 20%;
 
-    --destructive: 0 65% 50%;
+    --destructive: 0 72% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 18% 86%;
-    --input: 35 20% 91%;
-    --ring: 348 45% 38%;
+    --border: 220 18% 90%;
+    --input: 220 18% 92%;
+    --ring: 250 75% 60%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
 
-    --sidebar-background: 40 30% 95%;
-    --sidebar-foreground: 20 10% 30%;
-    --sidebar-primary: 348 45% 38%;
-    --sidebar-primary-foreground: 40 30% 97%;
-    --sidebar-accent: 35 20% 91%;
-    --sidebar-accent-foreground: 20 15% 15%;
-    --sidebar-border: 35 18% 86%;
-    --sidebar-ring: 348 45% 38%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 12% 30%;
+    --sidebar-primary: 250 75% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 93%;
+    --sidebar-accent-foreground: 220 20% 20%;
+    --sidebar-border: 220 18% 90%;
+    --sidebar-ring: 250 75% 60%;
 
-    /* Custom tokens */
-    --surface-elevated: 40 40% 99%;
-    --text-subtle: 20 8% 58%;
-    --accent-warm: 28 60% 58%;
-    --accent-sage: 150 18% 42%;
-    --block-narration: 210 30% 95%;
-    --block-dialogue: 348 30% 96%;
-    --block-song: 40 40% 94%;
+    /* Fun color tokens */
+    --fun-purple: 250 75% 60%;
+    --fun-teal: 170 65% 48%;
+    --fun-yellow: 40 95% 62%;
+    --fun-pink: 340 80% 65%;
+    --fun-blue: 210 85% 60%;
+    --fun-orange: 25 90% 58%;
+    --block-narration: 210 60% 96%;
+    --block-dialogue: 340 60% 96%;
+    --block-song: 40 70% 95%;
   }
 }
 
@@ -62,71 +65,78 @@
   }
 
   body {
-    @apply bg-background text-foreground font-noto antialiased;
+    @apply bg-background text-foreground antialiased;
+    font-family: "Pretendard GOV Variable", "Pretendard GOV", -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   ::selection {
-    background: hsl(348 45% 38% / 0.15);
+    background: hsl(250 75% 60% / 0.2);
   }
 }
 
 @layer components {
   .section-card {
-    @apply bg-[hsl(var(--surface-elevated))] rounded-xl border border-border/60 shadow-sm;
-    @apply transition-shadow duration-300 hover:shadow-md;
+    @apply bg-card rounded-2xl border-2 border-border/60 shadow-sm;
+    @apply transition-all duration-300 hover:shadow-md;
   }
 
   .section-header {
-    @apply flex items-center justify-between px-6 py-4 border-b border-border/40;
+    @apply flex items-center justify-between px-5 py-4 border-b-2 border-border/30;
   }
 
   .section-body {
-    @apply px-6 py-5;
+    @apply px-5 py-5;
   }
 
   .section-title {
-    @apply text-base font-serif font-semibold tracking-wide flex items-center gap-2.5;
+    @apply text-base font-bold flex items-center gap-2.5;
   }
 
   .field-label {
-    @apply text-xs font-medium uppercase tracking-widest text-[hsl(var(--text-subtle))] mb-2 block;
+    @apply text-sm font-semibold text-muted-foreground mb-1.5 block;
   }
 
   .field-input {
-    @apply bg-transparent border-0 border-b border-border/60 rounded-none px-0 py-2;
-    @apply focus-visible:ring-0 focus-visible:border-primary transition-colors duration-200;
-    @apply placeholder:text-muted-foreground/50 text-sm;
+    @apply bg-muted/50 border-2 border-transparent rounded-xl px-4 py-2.5;
+    @apply focus:outline-none focus:border-[hsl(var(--fun-purple))] focus:bg-card;
+    @apply transition-all duration-200 placeholder:text-muted-foreground/40 text-sm;
   }
 
   .field-textarea {
-    @apply bg-transparent border border-border/40 rounded-lg px-4 py-3;
-    @apply focus-visible:ring-1 focus-visible:ring-primary/30 focus-visible:border-primary/60;
-    @apply transition-all duration-200 placeholder:text-muted-foreground/50 text-sm resize-none;
+    @apply bg-muted/50 border-2 border-transparent rounded-xl px-4 py-3;
+    @apply focus:outline-none focus:border-[hsl(var(--fun-purple))] focus:bg-card;
+    @apply transition-all duration-200 placeholder:text-muted-foreground/40 text-sm resize-none;
   }
 
   .block-card {
-    @apply rounded-lg p-4 space-y-3 border-l-[3px] transition-all duration-200;
+    @apply rounded-2xl p-4 space-y-3 border-2 transition-all duration-200;
   }
 
   .block-narration {
-    @apply bg-[hsl(var(--block-narration))] border-l-[hsl(210,40%,65%)];
+    @apply bg-[hsl(var(--block-narration))] border-[hsl(210,70%,82%)];
   }
 
   .block-dialogue {
-    @apply bg-[hsl(var(--block-dialogue))] border-l-primary/50;
+    @apply bg-[hsl(var(--block-dialogue))] border-[hsl(340,60%,85%)];
   }
 
   .block-song {
-    @apply bg-[hsl(var(--block-song))] border-l-[hsl(var(--accent-warm))];
+    @apply bg-[hsl(var(--block-song))] border-[hsl(40,70%,80%)];
   }
 
   .icon-badge {
-    @apply w-8 h-8 rounded-lg flex items-center justify-center shrink-0;
+    @apply w-9 h-9 rounded-xl flex items-center justify-center shrink-0;
   }
 
   .btn-add {
-    @apply text-xs font-medium gap-1.5 border-dashed border-border hover:border-primary/50;
-    @apply hover:text-primary transition-all duration-200;
+    @apply text-sm font-semibold gap-1.5 border-2 border-dashed rounded-xl;
+    @apply hover:border-[hsl(var(--fun-purple))] hover:text-[hsl(var(--fun-purple))];
+    @apply transition-all duration-200;
+  }
+
+  .fun-btn {
+    @apply flex items-center gap-2 px-4 py-3 rounded-2xl border-2 text-sm font-semibold;
+    @apply transition-all duration-200 active:scale-95;
   }
 }
 
