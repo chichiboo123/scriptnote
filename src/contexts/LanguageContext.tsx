@@ -69,7 +69,7 @@ const translations: Record<Language, Record<string, string>> = {
   },
   en: {
     "header.title": "Musical Script Notebook",
-    "header.subtitle": "Write musical scripts with ease",
+    "header.subtitle": "A Musical Script Creation Platform for Everyone",
     "basic.title": "Basic Information",
     "basic.workTitle": "Title",
     "basic.workTitle.placeholder": "Enter musical title",
