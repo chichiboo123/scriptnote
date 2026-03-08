@@ -14,8 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        "do-hyeon": ['"Do Hyeon"', "sans-serif"],
+        serif: ['"Playfair Display"', '"Noto Serif KR"', "serif"],
         noto: ['"Noto Sans KR"', "sans-serif"],
+        "noto-serif": ['"Noto Serif KR"', "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -76,15 +77,20 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        "fade-in": {
-          from: { opacity: "0", transform: "translateY(8px)" },
+        "fade-in-up": {
+          from: { opacity: "0", transform: "translateY(12px)" },
           to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "slide-in": {
+          from: { opacity: "0", transform: "translateX(-8px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.3s ease-out",
+        "fade-in-up": "fade-in-up 0.4s ease-out",
+        "slide-in": "slide-in 0.3s ease-out",
       },
     },
   },
