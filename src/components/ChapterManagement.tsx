@@ -111,7 +111,7 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
             {/* Chapter Header */}
             <button
               onClick={() => toggleChapter(chapter.id)}
-              className="w-full flex items-center gap-3 px-5 py-4 text-left group"
+              className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-3 sm:py-4 text-left group"
             >
               <ChevronRight
                 className={`w-5 h-5 text-primary transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
