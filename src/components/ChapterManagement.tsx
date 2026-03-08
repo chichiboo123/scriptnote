@@ -111,7 +111,7 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
             {/* Chapter Header */}
             <button
               onClick={() => toggleChapter(chapter.id)}
-              className="w-full flex items-center gap-3 px-5 py-4 text-left group"
+              className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-3 sm:py-4 text-left group"
             >
               <ChevronRight
                 className={`w-5 h-5 text-primary transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
@@ -130,7 +130,7 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
             {isExpanded && (
               <div className="border-t-2 border-border/20">
                 {/* Chapter Title Input */}
-                <div className="px-5 py-4 border-b-2 border-border/10">
+                <div className="px-4 sm:px-5 py-3 sm:py-4 border-b-2 border-border/10">
                   <label className="field-label">{t("chapters.chapterTitle")}</label>
                   <div className="flex items-center gap-2">
                     <input
@@ -151,7 +151,7 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
                 </div>
 
                 {/* Blocks */}
-                <div className="px-5 py-4 space-y-3">
+                <div className="px-3 sm:px-5 py-3 sm:py-4 space-y-3">
                   {chapter.blocks.length === 0 && (
                     <div className="text-center py-10">
                       <span className="text-4xl block mb-2">✍️</span>
