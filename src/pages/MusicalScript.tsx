@@ -136,7 +136,7 @@ const MusicalScript = () => {
           characters={scriptData.characters}
           onChange={(chapters) => setScriptData((prev) => ({ ...prev, chapters }))}
         />
-        <ActionButtons scriptData={scriptData} onImport={(data) => setScriptData(data)} />
+        <ActionButtons scriptData={scriptData} />
 
         {/* Reset */}
         <div className="flex justify-center no-print pt-2 pb-4">
