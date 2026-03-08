@@ -130,7 +130,7 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
             {isExpanded && (
               <div className="border-t-2 border-border/20">
                 {/* Chapter Title Input */}
-                <div className="px-5 py-4 border-b-2 border-border/10">
+                <div className="px-4 sm:px-5 py-3 sm:py-4 border-b-2 border-border/10">
                   <label className="field-label">{t("chapters.chapterTitle")}</label>
                   <div className="flex items-center gap-2">
                     <input
