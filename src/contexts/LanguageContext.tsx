@@ -12,7 +12,7 @@ interface LanguageContextType {
 const translations: Record<Language, Record<string, string>> = {
   ko: {
     "header.title": "뮤지컬 대본 노트",
-    "header.subtitle": "한국 뮤지컬 대본을 쉽게 작성하세요",
+    "header.subtitle": "모두를 위한 뮤지컬 대본 창작 플랫폼",
     "basic.title": "작품 기본정보",
     "basic.workTitle": "작품명",
     "basic.workTitle.placeholder": "뮤지컬 제목을 입력하세요",
@@ -69,7 +69,7 @@ const translations: Record<Language, Record<string, string>> = {
   },
   en: {
     "header.title": "Musical Script Notebook",
-    "header.subtitle": "Write musical scripts with ease",
+    "header.subtitle": "A Musical Script Creation Platform for Everyone",
     "basic.title": "Basic Information",
     "basic.workTitle": "Title",
     "basic.workTitle.placeholder": "Enter musical title",
@@ -126,7 +126,7 @@ const translations: Record<Language, Record<string, string>> = {
   },
   ja: {
     "header.title": "ミュージカル台本ノート",
-    "header.subtitle": "ミュージカルの台本を簡単に作成しましょう",
+    "header.subtitle": "みんなのためのミュージカル台本創作プラットフォーム",
     "basic.title": "作品基本情報",
     "basic.workTitle": "作品名",
     "basic.workTitle.placeholder": "ミュージカルのタイトルを入力してください",
