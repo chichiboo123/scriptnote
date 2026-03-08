@@ -130,7 +130,7 @@ const MusicalScript = () => {
           href="https://litt.ly/chichiboo"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-muted-foreground/40 font-medium hover:text-primary transition-colors"
+          className="text-sm text-foreground/60 font-bold hover:text-primary transition-colors"
         >
           {t("footer.text")}
         </a>

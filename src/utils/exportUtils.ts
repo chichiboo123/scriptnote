@@ -182,3 +182,35 @@ export function openFullView(data: ScriptData) {
     }
   }
 }
+
+export function exportToJson(data: ScriptData) {
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+  downloadBlob(blob, `${data.work.title || "script"}.json`);
+}
+
+export function importFromJson(): Promise<ScriptData> {
+  return new Promise((resolve, reject) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return reject(new Error("No file selected"));
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target?.result as string) as ScriptData;
+          if (!data.work || !data.characters || !data.chapters) {
+            throw new Error("Invalid format");
+          }
+          resolve(data);
+        } catch {
+          reject(new Error("Invalid JSON"));
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  });
+}
