@@ -96,7 +96,7 @@ const MusicalScript = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container max-w-3xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5">
+      <main className="container max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 space-y-4 sm:space-y-5 lg:space-y-6">
         <BasicInfo
           work={scriptData.work}
           onChange={(work) => setScriptData((prev) => ({ ...prev, work }))}
