@@ -83,9 +83,14 @@ const MusicalScript = () => {
 
       {/* Footer */}
       <footer className="no-print border-t-2 border-border/30 py-6 text-center">
-        <p className="text-xs text-muted-foreground/40 font-medium">
+        <a
+          href="https://litt.ly/chichiboo"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-muted-foreground/40 font-medium hover:text-primary transition-colors"
+        >
           {t("footer.text")}
-        </p>
+        </a>
       </footer>
 
       <ConfirmModal

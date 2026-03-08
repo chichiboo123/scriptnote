@@ -117,7 +117,7 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
                 className={`w-5 h-5 text-primary transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
               />
               <span className="text-sm font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-lg shrink-0">
-                {idx + 1}장
+                {t("chapters.chapterLabel")} {idx + 1}
               </span>
               <span className="text-sm font-semibold text-foreground truncate">
                 {chapter.title || t("chapters.chapterTitle.placeholder")}
