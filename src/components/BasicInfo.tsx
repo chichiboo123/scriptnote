@@ -26,7 +26,7 @@ export function BasicInfo({ work, onChange }: BasicInfoProps) {
       </div>
       <div className="section-body space-y-4">
         <div>
-          <label className="field-label">✏️ {t("basic.workTitle")}</label>
+          <label className="field-label">{t("basic.workTitle")}</label>
           <input
             value={work.title}
             onChange={(e) => update("title", e.target.value)}
