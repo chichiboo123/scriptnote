@@ -21,7 +21,7 @@ export function BasicInfo({ work, onChange }: BasicInfoProps) {
           <div className="icon-badge bg-primary/10">
             <BookOpen className="w-5 h-5 text-primary" />
           </div>
-          📖 {t("basic.title")}
+          {t("basic.title")}
         </h2>
       </div>
       <div className="section-body space-y-4">
