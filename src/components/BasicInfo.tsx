@@ -21,12 +21,12 @@ export function BasicInfo({ work, onChange }: BasicInfoProps) {
           <div className="icon-badge bg-primary/10">
             <BookOpen className="w-5 h-5 text-primary" />
           </div>
-          📖 {t("basic.title")}
+          {t("basic.title")}
         </h2>
       </div>
       <div className="section-body space-y-4">
         <div>
-          <label className="field-label">✏️ {t("basic.workTitle")}</label>
+          <label className="field-label">{t("basic.workTitle")}</label>
           <input
             value={work.title}
             onChange={(e) => update("title", e.target.value)}
@@ -36,7 +36,7 @@ export function BasicInfo({ work, onChange }: BasicInfoProps) {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="field-label">⏰ {t("basic.timeSetting")}</label>
+            <label className="field-label">{t("basic.timeSetting")}</label>
             <input
               value={work.timeSetting}
               onChange={(e) => update("timeSetting", e.target.value)}
@@ -45,7 +45,7 @@ export function BasicInfo({ work, onChange }: BasicInfoProps) {
             />
           </div>
           <div>
-            <label className="field-label">📍 {t("basic.spaceSetting")}</label>
+            <label className="field-label">{t("basic.spaceSetting")}</label>
             <input
               value={work.spaceSetting}
               onChange={(e) => update("spaceSetting", e.target.value)}
@@ -55,7 +55,7 @@ export function BasicInfo({ work, onChange }: BasicInfoProps) {
           </div>
         </div>
         <div>
-          <label className="field-label">📝 {t("basic.synopsis")}</label>
+          <label className="field-label">{t("basic.synopsis")}</label>
           <textarea
             value={work.synopsis}
             onChange={(e) => update("synopsis", e.target.value)}
