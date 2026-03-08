@@ -8,7 +8,9 @@ import { ChapterManagement } from "@/components/ChapterManagement";
 import { ActionButtons } from "@/components/ActionButtons";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { HelpModal } from "@/components/HelpModal";
-import { RotateCcw, Globe, HelpCircle } from "lucide-react";
+import { RotateCcw, Globe, HelpCircle, Save, FolderOpen } from "lucide-react";
+import { exportToJson, importFromJson } from "@/utils/exportUtils";
+import { toast } from "sonner";
 
 const MusicalScript = () => {
   const { language, setLanguage, t } = useLanguage();
@@ -53,6 +55,30 @@ const MusicalScript = () => {
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
+            {/* JSON Save */}
+            <button
+              onClick={() => exportToJson(scriptData)}
+              title={t("actions.download.json")}
+              className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors px-2.5 py-2 rounded-xl bg-muted/60 hover:bg-muted"
+            >
+              <Save className="w-3.5 h-3.5" />
+            </button>
+            {/* JSON Load */}
+            <button
+              onClick={async () => {
+                try {
+                  const data = await importFromJson();
+                  setScriptData(data);
+                  toast.success(t("actions.json.loaded"));
+                } catch {
+                  toast.error(t("actions.json.error"));
+                }
+              }}
+              title={t("actions.upload.json")}
+              className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors px-2.5 py-2 rounded-xl bg-muted/60 hover:bg-muted"
+            >
+              <FolderOpen className="w-3.5 h-3.5" />
+            </button>
             {/* Language */}
             <div className="relative" ref={langRef}>
               <button
@@ -110,7 +136,7 @@ const MusicalScript = () => {
           characters={scriptData.characters}
           onChange={(chapters) => setScriptData((prev) => ({ ...prev, chapters }))}
         />
-        <ActionButtons scriptData={scriptData} onImport={(data) => setScriptData(data)} />
+        <ActionButtons scriptData={scriptData} />
 
         {/* Reset */}
         <div className="flex justify-center no-print pt-2 pb-4">

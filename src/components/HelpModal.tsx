@@ -23,11 +23,15 @@ const guideContent = {
         body: "장을 추가한 뒤, 각 장에 블록을 추가하세요. 블록은 3종류입니다:\n• 해설 — 무대 지시, 배경 설명\n• 대사 — 인물의 대사 (인물 선택 후 입력)\n• 노래 — 노래 제목과 가사 (가수 지정 가능)",
       },
       {
-        heading: "4. 내보내기",
+        heading: "4. 저장 및 불러오기",
+        body: "• 상단의 💾 아이콘을 눌러 작성 중인 대본을 JSON 파일로 저장할 수 있습니다.\n• 📂 아이콘을 눌러 저장한 JSON 파일을 불러와 작업을 이어갈 수 있습니다.",
+      },
+      {
+        heading: "5. 내보내기",
         body: "작성한 대본을 TXT, DOCX, PDF로 다운로드하거나, 클립보드 복사·전체 보기·인쇄할 수 있습니다.",
       },
       {
-        heading: "5. 기타",
+        heading: "6. 기타",
         body: "• 데이터는 브라우저에 자동 저장됩니다.\n• '데이터 초기화'를 누르면 모든 내용이 삭제됩니다.\n• 상단 언어 버튼으로 한국어/영어/일본어를 전환할 수 있습니다.",
       },
     ],
@@ -50,11 +54,15 @@ const guideContent = {
         body: "Add chapters, then add blocks to each chapter. There are 3 block types:\n• Narration — stage directions, scene descriptions\n• Dialogue — character lines (select a character first)\n• Song — song title and lyrics (assign singers)",
       },
       {
-        heading: "4. Export",
+        heading: "4. Save & Load",
+        body: "• Tap the 💾 icon at the top to save your script as a JSON file.\n• Tap the 📂 icon to load a previously saved JSON file and continue working.",
+      },
+      {
+        heading: "5. Export",
         body: "Download your script as TXT, DOCX, or PDF. You can also copy to clipboard, view in full screen, or print.",
       },
       {
-        heading: "5. Other Tips",
+        heading: "6. Other Tips",
         body: "• Data is auto-saved in your browser.\n• 'Reset Data' will delete all content.\n• Use the language button at the top to switch between KO/EN/JA.",
       },
     ],
@@ -77,11 +85,15 @@ const guideContent = {
         body: "章を追加し、各章にブロックを追加します。ブロックは3種類あります：\n• ナレーション — 舞台指示、場面説明\n• セリフ — キャラクターのセリフ（人物を選択して入力）\n• 歌 — 曲名と歌詞（歌手を指定可能）",
       },
       {
-        heading: "4. エクスポート",
+        heading: "4. 保存と読み込み",
+        body: "• 上部の💾アイコンを押すと、台本をJSONファイルとして保存できます。\n• 📂アイコンを押すと、保存したJSONファイルを読み込んで作業を続けられます。",
+      },
+      {
+        heading: "5. エクスポート",
         body: "作成した台本をTXT、DOCX、PDFでダウンロードできます。クリップボードへのコピー、全体表示、印刷も可能です。",
       },
       {
-        heading: "5. その他",
+        heading: "6. その他",
         body: "• データはブラウザに自動保存されます。\n• 「データ初期化」を押すとすべてのデータが削除されます。\n• 上部の言語ボタンで韓国語/英語/日本語を切り替えられます。",
       },
     ],
