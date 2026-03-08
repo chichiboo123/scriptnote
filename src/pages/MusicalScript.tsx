@@ -8,7 +8,9 @@ import { ChapterManagement } from "@/components/ChapterManagement";
 import { ActionButtons } from "@/components/ActionButtons";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { HelpModal } from "@/components/HelpModal";
-import { RotateCcw, Globe, HelpCircle } from "lucide-react";
+import { RotateCcw, Globe, HelpCircle, Save, FolderOpen } from "lucide-react";
+import { exportToJson, importFromJson } from "@/utils/exportUtils";
+import { toast } from "sonner";
 
 const MusicalScript = () => {
   const { language, setLanguage, t } = useLanguage();
