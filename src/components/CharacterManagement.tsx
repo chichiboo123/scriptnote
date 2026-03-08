@@ -38,7 +38,7 @@ export function CharacterManagement({ characters, onChange }: CharacterManagemen
           {t("characters.title")}
           {characters.length > 0 && (
             <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full ml-1">
-              {characters.length}명
+              {characters.length}{t("characters.count")}
             </span>
           )}
         </h2>
