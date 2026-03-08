@@ -16,6 +16,18 @@ const MusicalScript = () => {
     initialScriptData
   );
   const [showResetModal, setShowResetModal] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setShowLangMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const handleReset = () => {
     setScriptData(initialScriptData);
