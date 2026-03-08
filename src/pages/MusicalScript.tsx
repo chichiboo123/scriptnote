@@ -8,7 +8,7 @@ import { ChapterManagement } from "@/components/ChapterManagement";
 import { ActionButtons } from "@/components/ActionButtons";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Globe } from "lucide-react";
+import { RotateCcw, Globe, Feather } from "lucide-react";
 
 const MusicalScript = () => {
   const { language, setLanguage, t } = useLanguage();
@@ -26,28 +26,33 @@ const MusicalScript = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="no-print sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-do-hyeon text-foreground">
-              🎭 {t("header.title")}
-            </h1>
-            <p className="text-sm text-muted-foreground">{t("header.subtitle")}</p>
+      <header className="no-print sticky top-0 z-50 bg-background/90 backdrop-blur-lg border-b border-border/50">
+        <div className="container max-w-3xl mx-auto px-5 py-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="icon-badge bg-primary/10">
+              <Feather className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-lg font-serif font-semibold text-foreground tracking-tight">
+                {t("header.title")}
+              </h1>
+              <p className="text-[11px] text-muted-foreground tracking-wide">
+                {t("header.subtitle")}
+              </p>
+            </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={() => setLanguage(language === "ko" ? "en" : "ko")}
-            className="gap-1.5"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-full border border-border/60 hover:border-border"
           >
-            <Globe className="w-4 h-4" />
-            {language === "ko" ? t("lang.en") : t("lang.ko")}
-          </Button>
+            <Globe className="w-3.5 h-3.5" />
+            {language === "ko" ? "EN" : "KO"}
+          </button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <main className="container max-w-3xl mx-auto px-5 py-8 space-y-6">
         <BasicInfo
           work={scriptData.work}
           onChange={(work) => setScriptData((prev) => ({ ...prev, work }))}
@@ -67,21 +72,22 @@ const MusicalScript = () => {
         <ActionButtons scriptData={scriptData} />
 
         {/* Reset */}
-        <div className="flex justify-center no-print">
-          <Button
-            variant="ghost"
+        <div className="flex justify-center no-print pt-4">
+          <button
             onClick={() => setShowResetModal(true)}
-            className="text-destructive hover:text-destructive gap-1.5"
+            className="text-xs text-muted-foreground/60 hover:text-destructive transition-colors flex items-center gap-1.5 py-2"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3 h-3" />
             {t("reset.button")}
-          </Button>
+          </button>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="no-print border-t border-border py-6 text-center text-sm text-muted-foreground">
-        {t("footer.text")}
+      <footer className="no-print border-t border-border/40 py-8 text-center">
+        <p className="text-[11px] text-muted-foreground/50 tracking-widest uppercase">
+          {t("footer.text")}
+        </p>
       </footer>
 
       <ConfirmModal

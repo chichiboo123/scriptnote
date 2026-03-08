@@ -1,7 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WorkInfo } from "@/types/script";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { BookOpen } from "lucide-react";
 
 interface BasicInfoProps {
@@ -17,56 +15,52 @@ export function BasicInfo({ work, onChange }: BasicInfoProps) {
   };
 
   return (
-    <div className="glass-card animate-fade-in">
-      <h2 className="text-xl font-do-hyeon flex items-center gap-2 mb-4">
-        <BookOpen className="w-5 h-5 text-primary" />
-        {t("basic.title")}
-      </h2>
-      <div className="space-y-4">
+    <div className="section-card animate-fade-in-up">
+      <div className="section-header">
+        <h2 className="section-title">
+          <div className="icon-badge bg-primary/8">
+            <BookOpen className="w-4 h-4 text-primary" />
+          </div>
+          {t("basic.title")}
+        </h2>
+      </div>
+      <div className="section-body space-y-5">
         <div>
-          <label className="text-sm font-medium text-muted-foreground mb-1 block">
-            {t("basic.workTitle")}
-          </label>
-          <Input
+          <label className="field-label">{t("basic.workTitle")}</label>
+          <input
             value={work.title}
             onChange={(e) => update("title", e.target.value)}
             placeholder={t("basic.workTitle.placeholder")}
-            className="bg-background/50"
+            className="field-input w-full text-lg font-noto-serif font-medium"
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label className="text-sm font-medium text-muted-foreground mb-1 block">
-              {t("basic.timeSetting")}
-            </label>
-            <Input
+            <label className="field-label">{t("basic.timeSetting")}</label>
+            <input
               value={work.timeSetting}
               onChange={(e) => update("timeSetting", e.target.value)}
               placeholder={t("basic.timeSetting.placeholder")}
-              className="bg-background/50"
+              className="field-input w-full"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-muted-foreground mb-1 block">
-              {t("basic.spaceSetting")}
-            </label>
-            <Input
+            <label className="field-label">{t("basic.spaceSetting")}</label>
+            <input
               value={work.spaceSetting}
               onChange={(e) => update("spaceSetting", e.target.value)}
               placeholder={t("basic.spaceSetting.placeholder")}
-              className="bg-background/50"
+              className="field-input w-full"
             />
           </div>
         </div>
         <div>
-          <label className="text-sm font-medium text-muted-foreground mb-1 block">
-            {t("basic.synopsis")}
-          </label>
-          <Textarea
+          <label className="field-label">{t("basic.synopsis")}</label>
+          <textarea
             value={work.synopsis}
             onChange={(e) => update("synopsis", e.target.value)}
             placeholder={t("basic.synopsis.placeholder")}
-            className="bg-background/50 min-h-[80px]"
+            className="field-textarea w-full min-h-[100px]"
           />
         </div>
       </div>

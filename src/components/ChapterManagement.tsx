@@ -1,7 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Chapter, Block, LyricLine, Character } from "@/types/script";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -13,12 +11,11 @@ import {
 import {
   Layers,
   Plus,
-  Trash2,
+  X,
   MessageSquare,
   Mic,
   Music,
-  ChevronDown,
-  ChevronUp,
+  ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -37,13 +34,9 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
   };
 
   const addChapter = () => {
-    const newChapter: Chapter = {
-      id: `chapter-${Date.now()}`,
-      title: "",
-      blocks: [],
-    };
-    onChange([...chapters, newChapter]);
-    setExpandedChapters((prev) => ({ ...prev, [newChapter.id]: true }));
+    const ch: Chapter = { id: `chapter-${Date.now()}`, title: "", blocks: [] };
+    onChange([...chapters, ch]);
+    setExpandedChapters((prev) => ({ ...prev, [ch.id]: true }));
   };
 
   const deleteChapter = (id: string) => {
@@ -63,322 +56,233 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
       ...(type === "dialogue" ? { character: "" } : {}),
       ...(type === "song" ? { songTitle: "", lyrics: [] } : {}),
     };
-    onChange(
-      chapters.map((c) =>
-        c.id === chapterId ? { ...c, blocks: [...c.blocks, newBlock] } : c
-      )
-    );
+    onChange(chapters.map((c) => c.id === chapterId ? { ...c, blocks: [...c.blocks, newBlock] } : c));
   };
 
   const updateBlock = (chapterId: string, blockId: string, updates: Partial<Block>) => {
-    onChange(
-      chapters.map((c) =>
-        c.id === chapterId
-          ? {
-              ...c,
-              blocks: c.blocks.map((b) => (b.id === blockId ? { ...b, ...updates } : b)),
-            }
-          : c
-      )
-    );
+    onChange(chapters.map((c) => c.id === chapterId ? { ...c, blocks: c.blocks.map((b) => b.id === blockId ? { ...b, ...updates } : b) } : c));
   };
 
   const deleteBlock = (chapterId: string, blockId: string) => {
-    onChange(
-      chapters.map((c) =>
-        c.id === chapterId ? { ...c, blocks: c.blocks.filter((b) => b.id !== blockId) } : c
-      )
-    );
+    onChange(chapters.map((c) => c.id === chapterId ? { ...c, blocks: c.blocks.filter((b) => b.id !== blockId) } : c));
   };
 
   const addLyricLine = (chapterId: string, blockId: string) => {
-    const newLine: LyricLine = {
-      id: `lyric-${Date.now()}`,
-      characters: [],
-      content: "",
-    };
-    onChange(
-      chapters.map((c) =>
-        c.id === chapterId
-          ? {
-              ...c,
-              blocks: c.blocks.map((b) =>
-                b.id === blockId ? { ...b, lyrics: [...(b.lyrics || []), newLine] } : b
-              ),
-            }
-          : c
-      )
-    );
+    const newLine: LyricLine = { id: `lyric-${Date.now()}`, characters: [], content: "" };
+    onChange(chapters.map((c) => c.id === chapterId ? { ...c, blocks: c.blocks.map((b) => b.id === blockId ? { ...b, lyrics: [...(b.lyrics || []), newLine] } : b) } : c));
   };
 
-  const updateLyricLine = (
-    chapterId: string,
-    blockId: string,
-    lyricId: string,
-    updates: Partial<LyricLine>
-  ) => {
-    onChange(
-      chapters.map((c) =>
-        c.id === chapterId
-          ? {
-              ...c,
-              blocks: c.blocks.map((b) =>
-                b.id === blockId
-                  ? {
-                      ...b,
-                      lyrics: (b.lyrics || []).map((l) =>
-                        l.id === lyricId ? { ...l, ...updates } : l
-                      ),
-                    }
-                  : b
-              ),
-            }
-          : c
-      )
-    );
+  const updateLyricLine = (chapterId: string, blockId: string, lyricId: string, updates: Partial<LyricLine>) => {
+    onChange(chapters.map((c) => c.id === chapterId ? { ...c, blocks: c.blocks.map((b) => b.id === blockId ? { ...b, lyrics: (b.lyrics || []).map((l) => l.id === lyricId ? { ...l, ...updates } : l) } : b) } : c));
   };
 
   const deleteLyricLine = (chapterId: string, blockId: string, lyricId: string) => {
-    onChange(
-      chapters.map((c) =>
-        c.id === chapterId
-          ? {
-              ...c,
-              blocks: c.blocks.map((b) =>
-                b.id === blockId
-                  ? { ...b, lyrics: (b.lyrics || []).filter((l) => l.id !== lyricId) }
-                  : b
-              ),
-            }
-          : c
-      )
-    );
+    onChange(chapters.map((c) => c.id === chapterId ? { ...c, blocks: c.blocks.map((b) => b.id === blockId ? { ...b, lyrics: (b.lyrics || []).filter((l) => l.id !== lyricId) } : b) } : c));
   };
 
-  const blockIcon = (type: Block["type"]) => {
-    switch (type) {
-      case "narration": return <MessageSquare className="w-4 h-4" />;
-      case "dialogue": return <Mic className="w-4 h-4" />;
-      case "song": return <Music className="w-4 h-4" />;
-    }
-  };
-
-  const blockLabel = (type: Block["type"]) => {
-    switch (type) {
-      case "narration": return t("chapters.narration");
-      case "dialogue": return t("chapters.dialogue");
-      case "song": return t("chapters.song");
-    }
+  const blockConfig = {
+    narration: { icon: MessageSquare, class: "block-narration", label: t("chapters.narration") },
+    dialogue: { icon: Mic, class: "block-dialogue", label: t("chapters.dialogue") },
+    song: { icon: Music, class: "block-song", label: t("chapters.song") },
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-do-hyeon flex items-center gap-2">
-          <Layers className="w-5 h-5 text-primary" />
+      <div className="flex items-center justify-between px-1">
+        <h2 className="section-title">
+          <div className="icon-badge bg-primary/8">
+            <Layers className="w-4 h-4 text-primary" />
+          </div>
           {t("chapters.title")}
         </h2>
-        <Button onClick={addChapter} size="sm" variant="outline" className="gap-1">
-          <Plus className="w-4 h-4" />
+        <button
+          onClick={addChapter}
+          className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+        >
+          <Plus className="w-3.5 h-3.5" />
           {t("chapters.add")}
-        </Button>
+        </button>
       </div>
 
-      {chapters.map((chapter, idx) => (
-        <div key={chapter.id} className="glass-card animate-fade-in">
-          <div className="flex items-center gap-2 mb-4">
+      {chapters.map((chapter, idx) => {
+        const isExpanded = expandedChapters[chapter.id];
+        return (
+          <div key={chapter.id} className="section-card animate-fade-in-up">
+            {/* Chapter Header */}
             <button
               onClick={() => toggleChapter(chapter.id)}
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="w-full flex items-center gap-3 px-5 py-4 text-left group"
             >
-              {expandedChapters[chapter.id] ? (
-                <ChevronUp className="w-5 h-5" />
-              ) : (
-                <ChevronDown className="w-5 h-5" />
-              )}
+              <ChevronRight
+                className={`w-4 h-4 text-muted-foreground/50 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
+              />
+              <span className="text-xs font-medium text-primary/70 uppercase tracking-widest shrink-0">
+                {idx + 1}장
+              </span>
+              <span className="text-sm font-medium text-foreground/80 truncate">
+                {chapter.title || t("chapters.chapterTitle.placeholder")}
+              </span>
+              <span className="ml-auto text-[10px] text-muted-foreground/40">
+                {chapter.blocks.length} blocks
+              </span>
             </button>
-            <span className="font-do-hyeon text-lg text-muted-foreground">{idx + 1}장</span>
-            <Input
-              value={chapter.title}
-              onChange={(e) => updateChapterTitle(chapter.id, e.target.value)}
-              placeholder={t("chapters.chapterTitle.placeholder")}
-              className="bg-background/50 flex-1"
-            />
-            {chapters.length > 1 && (
-              <Button
-                onClick={() => deleteChapter(chapter.id)}
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+
+            {isExpanded && (
+              <div className="border-t border-border/30">
+                {/* Chapter Title Input */}
+                <div className="px-6 py-4 border-b border-border/20">
+                  <label className="field-label">{t("chapters.chapterTitle")}</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      value={chapter.title}
+                      onChange={(e) => updateChapterTitle(chapter.id, e.target.value)}
+                      placeholder={t("chapters.chapterTitle.placeholder")}
+                      className="field-input flex-1"
+                    />
+                    {chapters.length > 1 && (
+                      <button
+                        onClick={() => deleteChapter(chapter.id)}
+                        className="text-muted-foreground/30 hover:text-destructive transition-colors p-1"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Blocks */}
+                <div className="px-5 py-4 space-y-3">
+                  {chapter.blocks.length === 0 && (
+                    <div className="text-center py-8">
+                      <Layers className="w-7 h-7 text-muted-foreground/20 mx-auto mb-2" />
+                      <p className="text-xs text-muted-foreground/50">{t("chapters.empty")}</p>
+                    </div>
+                  )}
+
+                  {chapter.blocks.map((block) => {
+                    const cfg = blockConfig[block.type];
+                    const Icon = cfg.icon;
+                    return (
+                      <div key={block.id} className={`block-card ${cfg.class} animate-slide-in`}>
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                            <Icon className="w-3.5 h-3.5" />
+                            {cfg.label}
+                          </span>
+                          <button
+                            onClick={() => deleteBlock(chapter.id, block.id)}
+                            className="text-muted-foreground/30 hover:text-destructive transition-colors p-0.5"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+
+                        {block.type === "dialogue" && (
+                          <Select
+                            value={block.character || ""}
+                            onValueChange={(val) => updateBlock(chapter.id, block.id, { character: val })}
+                          >
+                            <SelectTrigger className="w-full sm:w-44 h-8 text-xs bg-background/60 border-border/40">
+                              <SelectValue placeholder={t("chapters.selectCharacter")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {characters.map((c) => (
+                                <SelectItem key={c.id} value={c.id} className="text-xs">
+                                  {c.name || c.id}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+
+                        {(block.type === "narration" || block.type === "dialogue") && (
+                          <textarea
+                            value={block.content}
+                            onChange={(e) => updateBlock(chapter.id, block.id, { content: e.target.value })}
+                            placeholder={block.type === "narration" ? t("chapters.narration.placeholder") : t("chapters.dialogue.placeholder")}
+                            className="field-textarea w-full min-h-[60px]"
+                          />
+                        )}
+
+                        {block.type === "song" && (
+                          <>
+                            <input
+                              value={block.songTitle || ""}
+                              onChange={(e) => updateBlock(chapter.id, block.id, { songTitle: e.target.value })}
+                              placeholder={t("chapters.songTitle.placeholder")}
+                              className="field-input w-full font-medium"
+                            />
+                            <div className="space-y-2 pl-3 border-l-2 border-[hsl(var(--accent-warm))]/30 mt-2">
+                              {(block.lyrics || []).map((lyric) => (
+                                <div key={lyric.id} className="flex gap-2 items-center">
+                                  <Select
+                                    value={lyric.characters[0] || ""}
+                                    onValueChange={(val) => updateLyricLine(chapter.id, block.id, lyric.id, { characters: [val] })}
+                                  >
+                                    <SelectTrigger className="w-28 h-8 text-xs bg-background/60 border-border/40 shrink-0">
+                                      <SelectValue placeholder={t("chapters.selectSinger")} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {characters.map((c) => (
+                                        <SelectItem key={c.id} value={c.id} className="text-xs">
+                                          {c.name || c.id}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <input
+                                    value={lyric.content}
+                                    onChange={(e) => updateLyricLine(chapter.id, block.id, lyric.id, { content: e.target.value })}
+                                    placeholder={t("chapters.lyric.placeholder")}
+                                    className="field-input flex-1"
+                                  />
+                                  <button
+                                    onClick={() => deleteLyricLine(chapter.id, block.id, lyric.id)}
+                                    className="text-muted-foreground/30 hover:text-destructive transition-colors p-1 shrink-0"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              ))}
+                              <button
+                                onClick={() => addLyricLine(chapter.id, block.id)}
+                                className="flex items-center gap-1 text-[11px] text-muted-foreground/50 hover:text-primary transition-colors pt-1"
+                              >
+                                <Plus className="w-3 h-3" />
+                                {t("chapters.addLyric")}
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {/* Add Block Buttons */}
+                  <div className="flex gap-2 pt-3 border-t border-border/20">
+                    {(["narration", "dialogue", "song"] as const).map((type) => {
+                      const cfg = blockConfig[type];
+                      const Icon = cfg.icon;
+                      return (
+                        <Button
+                          key={type}
+                          onClick={() => addBlock(chapter.id, type)}
+                          variant="outline"
+                          size="sm"
+                          className="btn-add h-8"
+                        >
+                          <Icon className="w-3 h-3" />
+                          {cfg.label}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
-
-          {expandedChapters[chapter.id] && (
-            <div className="space-y-3">
-              {chapter.blocks.length === 0 && (
-                <p className="text-muted-foreground text-center py-4 text-sm">
-                  {t("chapters.empty")}
-                </p>
-              )}
-
-              {chapter.blocks.map((block) => (
-                <div
-                  key={block.id}
-                  className="border border-border rounded-xl p-4 bg-background/40 space-y-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                      {blockIcon(block.type)}
-                      {blockLabel(block.type)}
-                    </span>
-                    <Button
-                      onClick={() => deleteBlock(chapter.id, block.id)}
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive h-7 w-7"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-
-                  {block.type === "dialogue" && (
-                    <Select
-                      value={block.character || ""}
-                      onValueChange={(val) =>
-                        updateBlock(chapter.id, block.id, { character: val })
-                      }
-                    >
-                      <SelectTrigger className="bg-background/50 w-full sm:w-48">
-                        <SelectValue placeholder={t("chapters.selectCharacter")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {characters.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.name || c.id}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-
-                  {(block.type === "narration" || block.type === "dialogue") && (
-                    <Textarea
-                      value={block.content}
-                      onChange={(e) =>
-                        updateBlock(chapter.id, block.id, { content: e.target.value })
-                      }
-                      placeholder={
-                        block.type === "narration"
-                          ? t("chapters.narration.placeholder")
-                          : t("chapters.dialogue.placeholder")
-                      }
-                      className="bg-background/50 min-h-[60px]"
-                    />
-                  )}
-
-                  {block.type === "song" && (
-                    <>
-                      <Input
-                        value={block.songTitle || ""}
-                        onChange={(e) =>
-                          updateBlock(chapter.id, block.id, { songTitle: e.target.value })
-                        }
-                        placeholder={t("chapters.songTitle.placeholder")}
-                        className="bg-background/50"
-                      />
-                      <div className="space-y-2 pl-4 border-l-2 border-primary/30">
-                        {(block.lyrics || []).map((lyric) => (
-                          <div key={lyric.id} className="flex gap-2 items-start">
-                            <Select
-                              value={lyric.characters[0] || ""}
-                              onValueChange={(val) =>
-                                updateLyricLine(chapter.id, block.id, lyric.id, {
-                                  characters: [val],
-                                })
-                              }
-                            >
-                              <SelectTrigger className="bg-background/50 w-32 shrink-0">
-                                <SelectValue placeholder={t("chapters.selectSinger")} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {characters.map((c) => (
-                                  <SelectItem key={c.id} value={c.id}>
-                                    {c.name || c.id}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <Input
-                              value={lyric.content}
-                              onChange={(e) =>
-                                updateLyricLine(chapter.id, block.id, lyric.id, {
-                                  content: e.target.value,
-                                })
-                              }
-                              placeholder={t("chapters.lyric.placeholder")}
-                              className="bg-background/50 flex-1"
-                            />
-                            <Button
-                              onClick={() => deleteLyricLine(chapter.id, block.id, lyric.id)}
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive hover:text-destructive h-9 w-9 shrink-0"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        ))}
-                        <Button
-                          onClick={() => addLyricLine(chapter.id, block.id)}
-                          variant="ghost"
-                          size="sm"
-                          className="gap-1 text-muted-foreground"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                          {t("chapters.addLyric")}
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
-
-              <div className="flex gap-2 pt-2">
-                <Button
-                  onClick={() => addBlock(chapter.id, "narration")}
-                  variant="outline"
-                  size="sm"
-                  className="gap-1 text-xs"
-                >
-                  <MessageSquare className="w-3.5 h-3.5" />
-                  {t("chapters.narration")}
-                </Button>
-                <Button
-                  onClick={() => addBlock(chapter.id, "dialogue")}
-                  variant="outline"
-                  size="sm"
-                  className="gap-1 text-xs"
-                >
-                  <Mic className="w-3.5 h-3.5" />
-                  {t("chapters.dialogue")}
-                </Button>
-                <Button
-                  onClick={() => addBlock(chapter.id, "song")}
-                  variant="outline"
-                  size="sm"
-                  className="gap-1 text-xs"
-                >
-                  <Music className="w-3.5 h-3.5" />
-                  {t("chapters.song")}
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

@@ -1,8 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Character, CHARACTER_COLORS } from "@/types/script";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Users, Plus, Trash2 } from "lucide-react";
+import { Users, Plus, X } from "lucide-react";
 
 interface CharacterManagementProps {
   characters: Character[];
@@ -31,53 +29,68 @@ export function CharacterManagement({ characters, onChange }: CharacterManagemen
   };
 
   return (
-    <div className="glass-card animate-fade-in">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-do-hyeon flex items-center gap-2">
-          <Users className="w-5 h-5 text-secondary" />
+    <div className="section-card animate-fade-in-up">
+      <div className="section-header">
+        <h2 className="section-title">
+          <div className="icon-badge bg-secondary/10">
+            <Users className="w-4 h-4 text-secondary" />
+          </div>
           {t("characters.title")}
+          {characters.length > 0 && (
+            <span className="text-xs font-noto font-normal text-muted-foreground ml-1">
+              ({characters.length})
+            </span>
+          )}
         </h2>
-        <Button onClick={addCharacter} size="sm" variant="outline" className="gap-1">
-          <Plus className="w-4 h-4" />
+        <button
+          onClick={addCharacter}
+          className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+        >
+          <Plus className="w-3.5 h-3.5" />
           {t("characters.add")}
-        </Button>
+        </button>
       </div>
 
-      {characters.length === 0 ? (
-        <p className="text-muted-foreground text-center py-6 text-sm">
-          {t("characters.empty")}
-        </p>
-      ) : (
-        <div className="space-y-3">
-          {characters.map((char) => (
-            <div
-              key={char.id}
-              className={`flex flex-col sm:flex-row gap-2 p-3 rounded-xl border ${char.colorClass}`}
-            >
-              <Input
-                value={char.name}
-                onChange={(e) => updateCharacter(char.id, "name", e.target.value)}
-                placeholder={t("characters.name.placeholder")}
-                className="bg-background/70 sm:w-40"
-              />
-              <Input
-                value={char.description}
-                onChange={(e) => updateCharacter(char.id, "description", e.target.value)}
-                placeholder={t("characters.description.placeholder")}
-                className="bg-background/70 flex-1"
-              />
-              <Button
-                onClick={() => deleteCharacter(char.id)}
-                variant="ghost"
-                size="icon"
-                className="text-destructive hover:text-destructive shrink-0"
+      <div className="section-body">
+        {characters.length === 0 ? (
+          <div className="text-center py-8">
+            <Users className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground/60">{t("characters.empty")}</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {characters.map((char, idx) => (
+              <div
+                key={char.id}
+                className="flex items-center gap-3 group py-2.5 animate-slide-in"
+                style={{ animationDelay: `${idx * 50}ms` }}
               >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
+                <div
+                  className={`w-2.5 h-2.5 rounded-full shrink-0 ${char.colorClass.split(" ")[0]}`}
+                />
+                <input
+                  value={char.name}
+                  onChange={(e) => updateCharacter(char.id, "name", e.target.value)}
+                  placeholder={t("characters.name.placeholder")}
+                  className="field-input font-medium w-28 sm:w-36 shrink-0"
+                />
+                <input
+                  value={char.description}
+                  onChange={(e) => updateCharacter(char.id, "description", e.target.value)}
+                  placeholder={t("characters.description.placeholder")}
+                  className="field-input flex-1 text-muted-foreground"
+                />
+                <button
+                  onClick={() => deleteCharacter(char.id)}
+                  className="opacity-0 group-hover:opacity-100 text-muted-foreground/40 hover:text-destructive transition-all p-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
