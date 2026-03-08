@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import logoImg from "@/assets/logo.png";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { ScriptData, initialScriptData } from "@/types/script";
