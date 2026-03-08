@@ -36,7 +36,7 @@ export function BasicInfo({ work, onChange }: BasicInfoProps) {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="field-label">⏰ {t("basic.timeSetting")}</label>
+            <label className="field-label">{t("basic.timeSetting")}</label>
             <input
               value={work.timeSetting}
               onChange={(e) => update("timeSetting", e.target.value)}
