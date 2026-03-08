@@ -97,7 +97,7 @@
   }
 
   .field-input {
-    @apply bg-muted/50 border-2 border-transparent rounded-xl px-4 py-2.5;
+    @apply bg-muted/50 border-2 border-transparent rounded-xl px-3 sm:px-4 py-2 sm:py-2.5;
     @apply focus:outline-none focus:border-[hsl(var(--fun-purple))] focus:bg-card;
     @apply transition-all duration-200 placeholder:text-muted-foreground/40 text-sm;
   }
