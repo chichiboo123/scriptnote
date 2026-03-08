@@ -151,7 +151,7 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
                 </div>
 
                 {/* Blocks */}
-                <div className="px-5 py-4 space-y-3">
+                <div className="px-3 sm:px-5 py-3 sm:py-4 space-y-3">
                   {chapter.blocks.length === 0 && (
                     <div className="text-center py-10">
                       <span className="text-4xl block mb-2">✍️</span>
