@@ -45,7 +45,7 @@ const MusicalScript = () => {
       <header className="no-print sticky top-0 z-50 bg-card/95 backdrop-blur-lg border-b-2 border-border/40 shadow-sm">
         <div className="container max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <span className="text-2xl sm:text-3xl shrink-0" role="img" aria-label="musical">🎭</span>
+            <img src={logoImg} alt="Musical Script Note" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
             <div className="min-w-0">
               <h1 className="text-base sm:text-xl font-title text-primary tracking-tight truncate">
                 {t("header.title")}
