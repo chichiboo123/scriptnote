@@ -93,7 +93,7 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
           <div className="icon-badge bg-accent/30">
             <Layers className="w-5 h-5 text-accent-foreground" />
           </div>
-          📚 {t("chapters.title")}
+          {t("chapters.title")}
         </h2>
         <button
           onClick={addChapter}
