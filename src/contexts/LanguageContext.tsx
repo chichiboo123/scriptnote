@@ -12,7 +12,7 @@ interface LanguageContextType {
 const translations: Record<Language, Record<string, string>> = {
   ko: {
     "header.title": "뮤지컬 대본 노트",
-    "header.subtitle": "한국 뮤지컬 대본을 쉽게 작성하세요",
+    "header.subtitle": "모두를 위한 뮤지컬 대본 창작 플랫폼",
     "basic.title": "작품 기본정보",
     "basic.workTitle": "작품명",
     "basic.workTitle.placeholder": "뮤지컬 제목을 입력하세요",
