@@ -7,7 +7,8 @@ import { CharacterManagement } from "@/components/CharacterManagement";
 import { ChapterManagement } from "@/components/ChapterManagement";
 import { ActionButtons } from "@/components/ActionButtons";
 import { ConfirmModal } from "@/components/ConfirmModal";
-import { RotateCcw, Globe } from "lucide-react";
+import { HelpModal } from "@/components/HelpModal";
+import { RotateCcw, Globe, HelpCircle } from "lucide-react";
 
 const MusicalScript = () => {
   const { language, setLanguage, t } = useLanguage();
@@ -17,6 +18,7 @@ const MusicalScript = () => {
   );
   const [showResetModal, setShowResetModal] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,53 +40,63 @@ const MusicalScript = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="no-print sticky top-0 z-50 bg-card/95 backdrop-blur-lg border-b-2 border-border/40 shadow-sm">
-        <div className="container max-w-3xl mx-auto px-4 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl" role="img" aria-label="musical">🎭</span>
-            <div>
-              <h1 className="text-xl font-title text-primary tracking-tight">
+        <div className="container max-w-3xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <span className="text-2xl sm:text-3xl shrink-0" role="img" aria-label="musical">🎭</span>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-xl font-title text-primary tracking-tight truncate">
                 {t("header.title")}
               </h1>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                 {t("header.subtitle")}
               </p>
             </div>
           </div>
-          <div className="relative" ref={langRef}>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Language */}
+            <div className="relative" ref={langRef}>
+              <button
+                onClick={() => setShowLangMenu((v) => !v)}
+                className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors px-2.5 py-2 rounded-xl bg-muted/60 hover:bg-muted"
+              >
+                <Globe className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{language.toUpperCase()}</span>
+              </button>
+              {showLangMenu && (
+                <div className="absolute right-0 top-full mt-1.5 bg-card border-2 border-border/60 rounded-xl shadow-lg overflow-hidden z-50 min-w-[110px] animate-pop">
+                  {([
+                    { code: "ko" as const, label: "한국어" },
+                    { code: "en" as const, label: "English" },
+                    { code: "ja" as const, label: "日本語" },
+                  ]).map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => { setLanguage(lang.code); setShowLangMenu(false); }}
+                      className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${
+                        language === lang.code
+                          ? "bg-primary/10 text-primary"
+                          : "text-foreground/70 hover:bg-muted"
+                      }`}
+                    >
+                      {lang.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Help */}
             <button
-              onClick={() => setShowLangMenu((v) => !v)}
-              className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors px-3 py-2 rounded-xl bg-muted/60 hover:bg-muted"
+              onClick={() => setShowHelp(true)}
+              className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors px-2.5 py-2 rounded-xl bg-muted/60 hover:bg-muted"
             >
-              <Globe className="w-3.5 h-3.5" />
-              {language.toUpperCase()}
+              <HelpCircle className="w-3.5 h-3.5" />
             </button>
-            {showLangMenu && (
-              <div className="absolute right-0 top-full mt-1.5 bg-card border-2 border-border/60 rounded-xl shadow-lg overflow-hidden z-50 min-w-[100px] animate-pop">
-                {([
-                  { code: "ko" as const, label: "한국어" },
-                  { code: "en" as const, label: "English" },
-                  { code: "ja" as const, label: "日本語" },
-                ]).map((lang) => (
-                  <button
-                    key={lang.code}
-                    onClick={() => { setLanguage(lang.code); setShowLangMenu(false); }}
-                    className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${
-                      language === lang.code
-                        ? "bg-primary/10 text-primary"
-                        : "text-foreground/70 hover:bg-muted"
-                    }`}
-                  >
-                    {lang.label}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container max-w-3xl mx-auto px-4 py-6 space-y-5">
+      <main className="container max-w-3xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5">
         <BasicInfo
           work={scriptData.work}
           onChange={(work) => setScriptData((prev) => ({ ...prev, work }))}
@@ -133,6 +145,8 @@ const MusicalScript = () => {
         confirmLabel={t("reset.confirm.yes")}
         cancelLabel={t("reset.confirm.no")}
       />
+
+      <HelpModal open={showHelp} onClose={() => setShowHelp(false)} />
     </div>
   );
 };
