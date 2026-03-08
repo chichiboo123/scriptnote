@@ -126,7 +126,7 @@ const translations: Record<Language, Record<string, string>> = {
   },
   ja: {
     "header.title": "ミュージカル台本ノート",
-    "header.subtitle": "ミュージカルの台本を簡単に作成しましょう",
+    "header.subtitle": "みんなのためのミュージカル台本創作プラットフォーム",
     "basic.title": "作品基本情報",
     "basic.workTitle": "作品名",
     "basic.workTitle.placeholder": "ミュージカルのタイトルを入力してください",
