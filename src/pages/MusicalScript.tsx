@@ -55,6 +55,30 @@ const MusicalScript = () => {
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
+            {/* JSON Save */}
+            <button
+              onClick={() => exportToJson(scriptData)}
+              title={t("actions.download.json")}
+              className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors px-2.5 py-2 rounded-xl bg-muted/60 hover:bg-muted"
+            >
+              <Save className="w-3.5 h-3.5" />
+            </button>
+            {/* JSON Load */}
+            <button
+              onClick={async () => {
+                try {
+                  const data = await importFromJson();
+                  setScriptData(data);
+                  toast.success(t("actions.json.loaded"));
+                } catch {
+                  toast.error(t("actions.json.error"));
+                }
+              }}
+              title={t("actions.upload.json")}
+              className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors px-2.5 py-2 rounded-xl bg-muted/60 hover:bg-muted"
+            >
+              <FolderOpen className="w-3.5 h-3.5" />
+            </button>
             {/* Language */}
             <div className="relative" ref={langRef}>
               <button
