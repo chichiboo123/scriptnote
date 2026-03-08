@@ -32,7 +32,7 @@ export function ActionButtons({ scriptData }: ActionButtonsProps) {
           <div className="icon-badge bg-muted">
             <Download className="w-5 h-5 text-muted-foreground" />
           </div>
-          💾 {t("actions.title")}
+          {t("actions.title")}
         </h2>
       </div>
       <div className="section-body">

@@ -131,7 +131,7 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
               <div className="border-t-2 border-border/20">
                 {/* Chapter Title Input */}
                 <div className="px-5 py-4 border-b-2 border-border/10">
-                  <label className="field-label">✏️ {t("chapters.chapterTitle")}</label>
+                  <label className="field-label">{t("chapters.chapterTitle")}</label>
                   <div className="flex items-center gap-2">
                     <input
                       value={chapter.title}

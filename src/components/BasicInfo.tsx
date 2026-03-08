@@ -55,7 +55,7 @@ export function BasicInfo({ work, onChange }: BasicInfoProps) {
           </div>
         </div>
         <div>
-          <label className="field-label">📝 {t("basic.synopsis")}</label>
+          <label className="field-label">{t("basic.synopsis")}</label>
           <textarea
             value={work.synopsis}
             onChange={(e) => update("synopsis", e.target.value)}
