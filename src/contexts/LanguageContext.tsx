@@ -1,0 +1,151 @@
+import React, { createContext, useContext, ReactNode } from "react";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+
+type Language = "ko" | "en";
+
+interface LanguageContextType {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string) => string;
+}
+
+const translations: Record<Language, Record<string, string>> = {
+  ko: {
+    "header.title": "뮤지컬 대본 노트",
+    "header.subtitle": "한국 뮤지컬 대본을 쉽게 작성하세요",
+    "lang.ko": "한국어",
+    "lang.en": "English",
+    "basic.title": "작품 기본정보",
+    "basic.workTitle": "작품명",
+    "basic.workTitle.placeholder": "뮤지컬 제목을 입력하세요",
+    "basic.timeSetting": "시간 배경",
+    "basic.timeSetting.placeholder": "시간적 배경을 입력하세요",
+    "basic.spaceSetting": "공간 배경",
+    "basic.spaceSetting.placeholder": "공간적 배경을 입력하세요",
+    "basic.synopsis": "시놉시스",
+    "basic.synopsis.placeholder": "작품의 시놉시스를 입력하세요",
+    "characters.title": "등장인물",
+    "characters.add": "인물 추가",
+    "characters.name": "이름",
+    "characters.name.placeholder": "인물 이름",
+    "characters.description": "설명",
+    "characters.description.placeholder": "인물 설명",
+    "characters.delete": "삭제",
+    "characters.empty": "등장인물을 추가해주세요",
+    "chapters.title": "장 구성",
+    "chapters.add": "장 추가",
+    "chapters.chapterTitle": "장 제목",
+    "chapters.chapterTitle.placeholder": "장 제목을 입력하세요",
+    "chapters.delete": "장 삭제",
+    "chapters.addBlock": "블록 추가",
+    "chapters.narration": "해설",
+    "chapters.dialogue": "대사",
+    "chapters.song": "노래",
+    "chapters.narration.placeholder": "해설 내용을 입력하세요",
+    "chapters.dialogue.placeholder": "대사 내용을 입력하세요",
+    "chapters.selectCharacter": "인물 선택",
+    "chapters.songTitle": "노래 제목",
+    "chapters.songTitle.placeholder": "노래 제목을 입력하세요",
+    "chapters.addLyric": "가사 추가",
+    "chapters.lyric.placeholder": "가사 내용을 입력하세요",
+    "chapters.deleteBlock": "블록 삭제",
+    "chapters.deleteLyric": "가사 삭제",
+    "chapters.empty": "블록을 추가하여 대본을 작성하세요",
+    "chapters.selectSinger": "가수 선택",
+    "actions.title": "내보내기",
+    "actions.download.txt": "TXT 다운로드",
+    "actions.download.docx": "DOCX 다운로드",
+    "actions.download.pdf": "PDF 내보내기",
+    "actions.copy": "클립보드에 복사",
+    "actions.fullView": "전체 보기",
+    "actions.print": "인쇄",
+    "actions.copied": "클립보드에 복사되었습니다!",
+    "reset.button": "데이터 초기화",
+    "reset.confirm.title": "정말 초기화하시겠습니까?",
+    "reset.confirm.message": "모든 작성 내용이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
+    "reset.confirm.yes": "초기화",
+    "reset.confirm.no": "취소",
+    "footer.text": "ScriptNote — 뮤지컬 대본 작성 도구",
+  },
+  en: {
+    "header.title": "Musical Script Notebook",
+    "header.subtitle": "Write Korean musical scripts with ease",
+    "lang.ko": "한국어",
+    "lang.en": "English",
+    "basic.title": "Basic Information",
+    "basic.workTitle": "Title",
+    "basic.workTitle.placeholder": "Enter musical title",
+    "basic.timeSetting": "Time Setting",
+    "basic.timeSetting.placeholder": "Enter time setting",
+    "basic.spaceSetting": "Space Setting",
+    "basic.spaceSetting.placeholder": "Enter space setting",
+    "basic.synopsis": "Synopsis",
+    "basic.synopsis.placeholder": "Enter synopsis",
+    "characters.title": "Characters",
+    "characters.add": "Add Character",
+    "characters.name": "Name",
+    "characters.name.placeholder": "Character name",
+    "characters.description": "Description",
+    "characters.description.placeholder": "Character description",
+    "characters.delete": "Delete",
+    "characters.empty": "Please add characters",
+    "chapters.title": "Chapters",
+    "chapters.add": "Add Chapter",
+    "chapters.chapterTitle": "Chapter Title",
+    "chapters.chapterTitle.placeholder": "Enter chapter title",
+    "chapters.delete": "Delete Chapter",
+    "chapters.addBlock": "Add Block",
+    "chapters.narration": "Narration",
+    "chapters.dialogue": "Dialogue",
+    "chapters.song": "Song",
+    "chapters.narration.placeholder": "Enter narration",
+    "chapters.dialogue.placeholder": "Enter dialogue",
+    "chapters.selectCharacter": "Select Character",
+    "chapters.songTitle": "Song Title",
+    "chapters.songTitle.placeholder": "Enter song title",
+    "chapters.addLyric": "Add Lyric",
+    "chapters.lyric.placeholder": "Enter lyrics",
+    "chapters.deleteBlock": "Delete Block",
+    "chapters.deleteLyric": "Delete Lyric",
+    "chapters.empty": "Add blocks to write your script",
+    "chapters.selectSinger": "Select Singer",
+    "actions.title": "Export",
+    "actions.download.txt": "Download TXT",
+    "actions.download.docx": "Download DOCX",
+    "actions.download.pdf": "Export PDF",
+    "actions.copy": "Copy to Clipboard",
+    "actions.fullView": "Full View",
+    "actions.print": "Print",
+    "actions.copied": "Copied to clipboard!",
+    "reset.button": "Reset Data",
+    "reset.confirm.title": "Are you sure?",
+    "reset.confirm.message": "All data will be deleted. This cannot be undone.",
+    "reset.confirm.yes": "Reset",
+    "reset.confirm.no": "Cancel",
+    "footer.text": "ScriptNote — Musical Script Writing Tool",
+  },
+};
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguage] = useLocalStorage<Language>("scriptnote-lang", "ko");
+
+  const t = (key: string): string => {
+    return translations[language][key] || key;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+export function useLanguage() {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error("useLanguage must be used within LanguageProvider");
+  }
+  return context;
+}
