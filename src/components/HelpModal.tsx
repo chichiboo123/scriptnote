@@ -54,11 +54,15 @@ const guideContent = {
         body: "Add chapters, then add blocks to each chapter. There are 3 block types:\n• Narration — stage directions, scene descriptions\n• Dialogue — character lines (select a character first)\n• Song — song title and lyrics (assign singers)",
       },
       {
-        heading: "4. Export",
+        heading: "4. Save & Load",
+        body: "• Tap the 💾 icon at the top to save your script as a JSON file.\n• Tap the 📂 icon to load a previously saved JSON file and continue working.",
+      },
+      {
+        heading: "5. Export",
         body: "Download your script as TXT, DOCX, or PDF. You can also copy to clipboard, view in full screen, or print.",
       },
       {
-        heading: "5. Other Tips",
+        heading: "6. Other Tips",
         body: "• Data is auto-saved in your browser.\n• 'Reset Data' will delete all content.\n• Use the language button at the top to switch between KO/EN/JA.",
       },
     ],
