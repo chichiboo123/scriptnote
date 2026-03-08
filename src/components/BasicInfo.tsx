@@ -45,7 +45,7 @@ export function BasicInfo({ work, onChange }: BasicInfoProps) {
             />
           </div>
           <div>
-            <label className="field-label">📍 {t("basic.spaceSetting")}</label>
+            <label className="field-label">{t("basic.spaceSetting")}</label>
             <input
               value={work.spaceSetting}
               onChange={(e) => update("spaceSetting", e.target.value)}
