@@ -39,11 +39,15 @@ const MusicalScript = () => {
             </div>
           </div>
           <button
-            onClick={() => setLanguage(language === "ko" ? "en" : "ko")}
+            onClick={() => {
+              const langs: Array<"ko" | "en" | "ja"> = ["ko", "en", "ja"];
+              const next = langs[(langs.indexOf(language) + 1) % langs.length];
+              setLanguage(next);
+            }}
             className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors px-3 py-2 rounded-xl bg-muted/60 hover:bg-muted"
           >
             <Globe className="w-3.5 h-3.5" />
-            {language === "ko" ? "KO" : "EN"}
+            {language.toUpperCase()}
           </button>
         </div>
       </header>
