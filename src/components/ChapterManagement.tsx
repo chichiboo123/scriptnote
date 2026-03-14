@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Chapter, Block, LyricLine, Character } from "@/types/script";
 import { CharacterMultiSelect } from "@/components/CharacterMultiSelect";
-import { Plus, X, GripVertical, Layers, ChevronUp, ChevronDown } from "lucide-react";
+import { Plus, X, Layers, ChevronUp, ChevronDown } from "lucide-react";
 
 /* ── Auto-resize textarea ── */
 function AutoResizeTextarea({
@@ -81,13 +81,6 @@ export function ChapterManagement({
   const [activeChapterId, setActiveChapterId] = useState<string>(
     chapters[0]?.id || ""
   );
-  // Individual block drag
-  const [dragBlockId, setDragBlockId] = useState<string | null>(null);
-  const [dragOverBlockId, setDragOverBlockId] = useState<string | null>(null);
-  const [dragScopeIds, setDragScopeIds] = useState<string[] | null>(null);
-  // Group drag
-  const [groupDragFirstId, setGroupDragFirstId] = useState<string | null>(null);
-  const [groupDragOverKey, setGroupDragOverKey] = useState<string | null>(null);
 
   // Keep activeChapterId valid when chapters change
   useEffect(() => {
@@ -230,71 +223,18 @@ export function ChapterManagement({
     );
   };
 
-  /* ── Individual block Drag & Drop ── */
-  const handleDragStart = (e: React.DragEvent, id: string, scopeIds?: string[]) => {
-    if (groupDragFirstId) return; // block drag blocked while group drag active
-    setDragBlockId(id);
-    setDragScopeIds(scopeIds ?? null);
-    e.dataTransfer.effectAllowed = "move";
-    e.stopPropagation();
-  };
-  const handleDragEnd = () => {
-    setDragBlockId(null);
-    setDragOverBlockId(null);
-    setDragScopeIds(null);
-  };
-  const handleDragOver = (e: React.DragEvent, id: string, scopeIds?: string[]) => {
-    e.preventDefault();
-    if (groupDragFirstId) return; // group drag in progress, skip
-    if (
-      dragScopeIds &&
-      (!scopeIds ||
-        dragScopeIds.length !== scopeIds.length ||
-        !dragScopeIds.every((scopeId) => scopeIds.includes(scopeId)))
-    ) {
-      return;
-    }
-    if (dragBlockId !== id) setDragOverBlockId(id);
-  };
-  const handleDrop = (e: React.DragEvent, targetId: string, scopeIds?: string[]) => {
-    e.preventDefault();
-    e.stopPropagation(); // prevent bubbling to group container
-    if (groupDragFirstId) return; // group drag in progress, skip
-
-    if (
-      dragScopeIds &&
-      (!scopeIds ||
-        dragScopeIds.length !== scopeIds.length ||
-        !dragScopeIds.every((scopeId) => scopeIds.includes(scopeId)))
-    ) {
-      return handleDragEnd();
-    }
-
-    if (!dragBlockId || dragBlockId === targetId) return handleDragEnd();
-
-    if (dragScopeIds) {
-      if (!dragScopeIds.includes(dragBlockId) || !dragScopeIds.includes(targetId)) {
-        return handleDragEnd();
-      }
-    }
-
+  const getGroupBoundary = (firstBlockId: string) => {
     const blocks = [...(activeChapter?.blocks || [])];
-    const from = blocks.findIndex((b) => b.id === dragBlockId);
-    const to = blocks.findIndex((b) => b.id === targetId);
-    if (from < 0 || to < 0) return handleDragEnd();
-    const [moved] = blocks.splice(from, 1);
-    blocks.splice(to, 0, moved);
-    updateBlocks(blocks);
-    handleDragEnd();
-  };
+    const startIdx = blocks.findIndex((b) => b.id === firstBlockId);
+    if (startIdx < 0) return null;
 
-  const dragAttrs = (block: Block, scopeIds?: string[]) => ({
-    draggable: true as const,
-    onDragStart: (e: React.DragEvent) => handleDragStart(e, block.id, scopeIds),
-    onDragEnd: handleDragEnd,
-    onDragOver: (e: React.DragEvent) => handleDragOver(e, block.id, scopeIds),
-    onDrop: (e: React.DragEvent) => handleDrop(e, block.id, scopeIds),
-  });
+    let endIdx = startIdx;
+    while (endIdx + 1 < blocks.length && blocks[endIdx + 1].type === "dialogue") {
+      endIdx++;
+    }
+
+    return { startIdx, endIdx, blocks };
+  };
 
   const moveGroup = (firstBlockId: string, direction: -1 | 1) => {
     const blocks = [...(activeChapter?.blocks || [])];
@@ -313,16 +253,15 @@ export function ChapterManagement({
     updateBlocks(reordered);
   };
 
-  const moveDialogueInGroup = (groupFirstBlockId: string, blockId: string, direction: -1 | 1) => {
-    const blocks = [...(activeChapter?.blocks || [])];
-    const startIdx = blocks.findIndex((b) => b.id === groupFirstBlockId);
-    if (startIdx < 0) return;
+  const moveDialogueInGroup = (
+    groupFirstBlockId: string,
+    blockId: string,
+    direction: -1 | 1
+  ) => {
+    const boundary = getGroupBoundary(groupFirstBlockId);
+    if (!boundary) return;
 
-    let endIdx = startIdx;
-    while (endIdx + 1 < blocks.length && blocks[endIdx + 1].type === "dialogue") {
-      endIdx++;
-    }
-
+    const { startIdx, endIdx, blocks } = boundary;
     const group = blocks.slice(startIdx, endIdx + 1);
     const idx = group.findIndex((b) => b.id === blockId);
     const targetIdx = idx + direction;
@@ -333,65 +272,21 @@ export function ChapterManagement({
     updateBlocks(blocks);
   };
 
-  /* ── Group Drag & Drop ── */
-  const handleGroupDragStart = (e: React.DragEvent, firstBlockId: string) => {
-    setGroupDragFirstId(firstBlockId);
-    setDragBlockId(null);
-    e.dataTransfer.effectAllowed = "move";
-    e.stopPropagation();
-  };
-  const handleGroupDragEnd = () => {
-    setGroupDragFirstId(null);
-    setGroupDragOverKey(null);
-  };
-  const handleGroupDragOver = (e: React.DragEvent, key: string) => {
-    e.preventDefault();
-    if (!groupDragFirstId) return;
-    setGroupDragOverKey(key);
-  };
-  const handleGroupDrop = (e: React.DragEvent, targetKey: string, targetFirstBlockId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!groupDragFirstId) return handleGroupDragEnd();
-    if (groupDragFirstId === targetFirstBlockId) return handleGroupDragEnd();
+  const getGroupMoveAvailability = (firstBlockId: string) => {
+    const groups = blockGroups;
+    const currentIdx = groups.findIndex((g) =>
+      g.type === "single" ? g.block.id === firstBlockId : g.blocks[0].id === firstBlockId
+    );
 
-    const blocks = [...(activeChapter?.blocks || [])];
-    const startIdx = blocks.findIndex((b) => b.id === groupDragFirstId);
-    if (startIdx < 0) return handleGroupDragEnd();
-
-    let endIdx = startIdx;
-    while (endIdx + 1 < blocks.length && blocks[endIdx + 1].type === "dialogue") {
-      endIdx++;
-    }
-
-    const groupIds = new Set(blocks.slice(startIdx, endIdx + 1).map((b) => b.id));
-    if (groupIds.has(targetFirstBlockId)) return handleGroupDragEnd();
-
-    const draggedGroup = blocks.slice(startIdx, endIdx + 1);
-    const remaining = blocks.filter((b) => !groupIds.has(b.id));
-
-    const newTargetIdx = remaining.findIndex((b) => b.id === targetFirstBlockId);
-    if (newTargetIdx < 0) return handleGroupDragEnd();
-
-    // If target is part of a dialogue group, advance to end of that group
-    // so we insert after the entire group, not in the middle of it
-    let insertAfter = newTargetIdx;
-    while (
-      insertAfter + 1 < remaining.length &&
-      remaining[insertAfter + 1].type === "dialogue"
-    ) {
-      insertAfter++;
-    }
-
-    remaining.splice(insertAfter + 1, 0, ...draggedGroup);
-    updateBlocks(remaining);
-    handleGroupDragEnd();
+    return {
+      canMoveUp: currentIdx > 0,
+      canMoveDown: currentIdx >= 0 && currentIdx < groups.length - 1,
+    };
   };
 
   /* ── Grouped blocks ── */
   const blockGroups = useMemo(
     () => groupBlocks(activeChapter?.blocks || []),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [activeChapter?.blocks]
   );
 
@@ -516,52 +411,34 @@ export function ChapterManagement({
             /* ── Single narration or song block ── */
             if (group.type === "single") {
               const { block, index } = group;
-              const isDragging = dragBlockId === block.id;
-              const isDragOver = dragOverBlockId === block.id;
-              const isGroupDragOver = groupDragOverKey === block.id;
+              const { canMoveUp, canMoveDown } = getGroupMoveAvailability(block.id);
 
               return (
                 <div key={block.id}>
                   <div
-                    {...dragAttrs(block)}
-                    onDragOver={(e) => {
-                      handleDragOver(e, block.id);
-                      handleGroupDragOver(e, block.id);
-                    }}
-                    onDrop={(e) => {
-                      if (groupDragFirstId) {
-                        handleGroupDrop(e, block.id, block.id);
-                      } else {
-                        handleDrop(e, block.id);
-                      }
-                    }}
                     className={`block-card ${
                       block.type === "narration" ? "block-narration" : "block-song"
-                    } transition-all duration-150 ${
-                      isDragging ? "opacity-40 scale-[0.98]" : ""
-                    } ${isDragOver || isGroupDragOver ? "ring-2 ring-primary/40" : ""}`}
+                    } transition-all duration-200 ease-out`}
                   >
                     {/* Header */}
                     <div className="flex items-center justify-between">
                       <span className="flex items-center gap-2 text-sm font-bold text-foreground/70">
-                        <GripVertical
-                          className="w-4 h-4 text-muted-foreground/30 hover:text-muted-foreground/70 cursor-grab active:cursor-grabbing shrink-0"
-                          title={t("blocks.dragTooltip")}
-                        />
                         <span>{blockConfig[block.type].emoji}</span>
                         {blockConfig[block.type].label}
                       </span>
                       <div className="flex items-center gap-0.5">
                         <button
                           onClick={() => moveGroup(block.id, -1)}
-                          className="text-muted-foreground/40 hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted"
+                          disabled={!canMoveUp}
+                          className="text-muted-foreground/40 hover:text-foreground disabled:opacity-25 disabled:cursor-not-allowed transition-colors p-1 rounded-lg hover:bg-muted"
                           title="Move up"
                         >
                           <ChevronUp className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => moveGroup(block.id, 1)}
-                          className="text-muted-foreground/40 hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted"
+                          disabled={!canMoveDown}
+                          className="text-muted-foreground/40 hover:text-foreground disabled:opacity-25 disabled:cursor-not-allowed transition-colors p-1 rounded-lg hover:bg-muted"
                           title="Move down"
                         >
                           <ChevronDown className="w-3.5 h-3.5" />
@@ -686,47 +563,30 @@ export function ChapterManagement({
             /* ── Dialogue group ── */
             const { blocks: dlgBlocks, lastIndex } = group;
             const groupKey = `dg-${dlgBlocks[0].id}`;
-            const isGroupDragging = groupDragFirstId === dlgBlocks[0].id;
-            const isGroupDragOver = groupDragOverKey === groupKey;
+            const { canMoveUp, canMoveDown } = getGroupMoveAvailability(dlgBlocks[0].id);
 
             return (
               <div key={groupKey}>
                 <div
-                  onDragOver={(e) => handleGroupDragOver(e, groupKey)}
-                  onDrop={(e) => {
-                    if (groupDragFirstId) {
-                      handleGroupDrop(e, groupKey, dlgBlocks[0].id);
-                    }
-                  }}
-                  className={`block-card block-dialogue transition-all duration-150 ${
-                    isGroupDragging ? "opacity-40 scale-[0.98]" : ""
-                  } ${isGroupDragOver ? "ring-2 ring-primary/40" : ""}`}
+                  className="block-card block-dialogue transition-all duration-200 ease-out"
                 >
-                  {/* Group header with group drag grip */}
+                  {/* Group header */}
                   <div className="flex items-center gap-2 text-sm font-bold text-foreground/70 mb-2">
-                    {/* SVG can't be draggable reliably — wrap in span */}
-                    <span
-                      draggable
-                      onDragStart={(e) => handleGroupDragStart(e, dlgBlocks[0].id)}
-                      onDragEnd={handleGroupDragEnd}
-                      className="inline-flex cursor-grab active:cursor-grabbing shrink-0"
-                      title={t("blocks.dragTooltip")}
-                    >
-                      <GripVertical className="w-4 h-4 text-muted-foreground/30 hover:text-muted-foreground/70" />
-                    </span>
                     <span>💬</span>
                     {t("chapters.dialogue")}
                     <div className="ml-auto flex items-center gap-0.5">
                       <button
                         onClick={() => moveGroup(dlgBlocks[0].id, -1)}
-                        className="text-muted-foreground/40 hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted"
+                        disabled={!canMoveUp}
+                        className="text-muted-foreground/40 hover:text-foreground disabled:opacity-25 disabled:cursor-not-allowed transition-colors p-1 rounded-lg hover:bg-muted"
                         title="Move group up"
                       >
                         <ChevronUp className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => moveGroup(dlgBlocks[0].id, 1)}
-                        className="text-muted-foreground/40 hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted"
+                        disabled={!canMoveDown}
+                        className="text-muted-foreground/40 hover:text-foreground disabled:opacity-25 disabled:cursor-not-allowed transition-colors p-1 rounded-lg hover:bg-muted"
                         title="Move group down"
                       >
                         <ChevronDown className="w-3.5 h-3.5" />
@@ -739,25 +599,14 @@ export function ChapterManagement({
                       const chars =
                         block.characters ??
                         (block.character ? [block.character] : []);
-                      const isDragging = dragBlockId === block.id;
-                      const isDragOver = dragOverBlockId === block.id;
+                      const isFirstDialogue = block.id === dlgBlocks[0].id;
+                      const isLastDialogue = block.id === dlgBlocks[dlgBlocks.length - 1].id;
 
                       return (
                         <div
                           key={block.id}
-                          {...dragAttrs(block, dlgBlocks.map((b) => b.id))}
-                          className={`flex gap-2 items-start transition-all duration-150 rounded-xl ${
-                            isDragging ? "opacity-40" : ""
-                          } ${
-                            isDragOver
-                              ? "ring-2 ring-primary/30 bg-primary/5 p-1"
-                              : ""
-                          }`}
+                          className="flex gap-2 items-start transition-all duration-200 ease-out rounded-xl"
                         >
-                          <GripVertical
-                            className="w-4 h-4 text-muted-foreground/30 hover:text-muted-foreground/70 cursor-grab active:cursor-grabbing shrink-0 mt-2.5"
-                            title={t("blocks.dragTooltip")}
-                          />
                           <CharacterMultiSelect
                             characters={characters}
                             selected={chars}
@@ -780,14 +629,16 @@ export function ChapterManagement({
                           </div>
                           <button
                             onClick={() => moveDialogueInGroup(dlgBlocks[0].id, block.id, -1)}
-                            className="text-muted-foreground/40 hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted shrink-0 mt-1"
+                            disabled={isFirstDialogue}
+                            className="text-muted-foreground/40 hover:text-foreground disabled:opacity-25 disabled:cursor-not-allowed transition-colors p-1 rounded-lg hover:bg-muted shrink-0 mt-1"
                             title="Move up"
                           >
                             <ChevronUp className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => moveDialogueInGroup(dlgBlocks[0].id, block.id, 1)}
-                            className="text-muted-foreground/40 hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted shrink-0 mt-1"
+                            disabled={isLastDialogue}
+                            className="text-muted-foreground/40 hover:text-foreground disabled:opacity-25 disabled:cursor-not-allowed transition-colors p-1 rounded-lg hover:bg-muted shrink-0 mt-1"
                             title="Move down"
                           >
                             <ChevronDown className="w-3.5 h-3.5" />
