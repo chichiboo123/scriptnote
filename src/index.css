@@ -97,14 +97,14 @@
   }
 
   .field-input {
-    @apply bg-muted/50 border-2 border-transparent rounded-xl px-3 sm:px-4 py-2 sm:py-2.5;
-    @apply focus:outline-none focus:border-[hsl(var(--fun-purple))] focus:bg-card;
+    @apply bg-white border-2 border-border/30 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5;
+    @apply focus:outline-none focus:border-[hsl(var(--fun-purple))];
     @apply transition-all duration-200 placeholder:text-muted-foreground/40 text-sm;
   }
 
   .field-textarea {
-    @apply bg-muted/50 border-2 border-transparent rounded-xl px-4 py-3;
-    @apply focus:outline-none focus:border-[hsl(var(--fun-purple))] focus:bg-card;
+    @apply bg-white border-2 border-border/30 rounded-xl px-4 py-3;
+    @apply focus:outline-none focus:border-[hsl(var(--fun-purple))];
     @apply transition-all duration-200 placeholder:text-muted-foreground/40 text-sm resize-none;
   }
 
@@ -113,15 +113,15 @@
   }
 
   .block-narration {
-    @apply bg-[hsl(var(--block-narration))] border-[hsl(210,70%,82%)];
+    @apply bg-white border-[hsl(210,70%,82%)];
   }
 
   .block-dialogue {
-    @apply bg-[hsl(var(--block-dialogue))] border-[hsl(340,60%,85%)];
+    @apply bg-white border-[hsl(340,60%,85%)];
   }
 
   .block-song {
-    @apply bg-[hsl(var(--block-song))] border-[hsl(40,70%,80%)];
+    @apply bg-white border-[hsl(40,70%,80%)];
   }
 
   .icon-badge {
