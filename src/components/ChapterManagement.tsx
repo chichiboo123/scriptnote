@@ -41,7 +41,7 @@ function AutoResizeTextarea({
 
 /* ── Block grouping ── */
 type BlockGroup =
-  | { type: "dialogue-group"; blocks: Block[]; lastIndex: number }
+  | { type: "dialogue-group"; blocks: Block[]; startIndex: number; lastIndex: number }
   | { type: "single"; block: Block; index: number };
 
 function groupBlocks(blocks: Block[]): BlockGroup[] {
@@ -50,11 +50,12 @@ function groupBlocks(blocks: Block[]): BlockGroup[] {
   while (i < blocks.length) {
     if (blocks[i].type === "dialogue") {
       const dlg: Block[] = [];
+      const startIndex = i;
       while (i < blocks.length && blocks[i].type === "dialogue") {
         dlg.push(blocks[i]);
         i++;
       }
-      groups.push({ type: "dialogue-group", blocks: dlg, lastIndex: i - 1 });
+      groups.push({ type: "dialogue-group", blocks: dlg, startIndex, lastIndex: i - 1 });
     } else {
       groups.push({ type: "single", block: blocks[i], index: i });
       i++;
@@ -80,8 +81,12 @@ export function ChapterManagement({
   const [activeChapterId, setActiveChapterId] = useState<string>(
     chapters[0]?.id || ""
   );
+  // Individual block drag
   const [dragBlockId, setDragBlockId] = useState<string | null>(null);
   const [dragOverBlockId, setDragOverBlockId] = useState<string | null>(null);
+  // Group drag
+  const [groupDragFirstId, setGroupDragFirstId] = useState<string | null>(null);
+  const [groupDragOverKey, setGroupDragOverKey] = useState<string | null>(null);
 
   // Keep activeChapterId valid when chapters change
   useEffect(() => {
@@ -174,6 +179,27 @@ export function ChapterManagement({
     );
   };
 
+  const addSongNarration = (blockId: string) => {
+    updateBlocks(
+      (activeChapter?.blocks || []).map((b) =>
+        b.id === blockId
+          ? {
+              ...b,
+              lyrics: [
+                ...(b.lyrics || []),
+                {
+                  id: `lyric-${Date.now()}`,
+                  type: "narration" as const,
+                  characters: [],
+                  content: "",
+                },
+              ],
+            }
+          : b
+      )
+    );
+  };
+
   const updateLyric = (
     blockId: string,
     lyricId: string,
@@ -203,7 +229,7 @@ export function ChapterManagement({
     );
   };
 
-  /* ── Drag & Drop ── */
+  /* ── Individual block Drag & Drop ── */
   const handleDragStart = (e: React.DragEvent, id: string) => {
     setDragBlockId(id);
     e.dataTransfer.effectAllowed = "move";
@@ -214,10 +240,12 @@ export function ChapterManagement({
   };
   const handleDragOver = (e: React.DragEvent, id: string) => {
     e.preventDefault();
+    if (groupDragFirstId) return; // group drag in progress, skip
     if (dragBlockId !== id) setDragOverBlockId(id);
   };
   const handleDrop = (e: React.DragEvent, targetId: string) => {
     e.preventDefault();
+    if (groupDragFirstId) return; // group drag in progress, skip
     if (!dragBlockId || dragBlockId === targetId) return handleDragEnd();
     const blocks = [...(activeChapter?.blocks || [])];
     const from = blocks.findIndex((b) => b.id === dragBlockId);
@@ -236,6 +264,52 @@ export function ChapterManagement({
     onDragOver: (e: React.DragEvent) => handleDragOver(e, block.id),
     onDrop: (e: React.DragEvent) => handleDrop(e, block.id),
   });
+
+  /* ── Group Drag & Drop ── */
+  const handleGroupDragStart = (e: React.DragEvent, firstBlockId: string) => {
+    setGroupDragFirstId(firstBlockId);
+    e.dataTransfer.effectAllowed = "move";
+    e.stopPropagation();
+  };
+  const handleGroupDragEnd = () => {
+    setGroupDragFirstId(null);
+    setGroupDragOverKey(null);
+  };
+  const handleGroupDragOver = (e: React.DragEvent, key: string) => {
+    e.preventDefault();
+    if (!groupDragFirstId) return;
+    setGroupDragOverKey(key);
+  };
+  const handleGroupDrop = (e: React.DragEvent, targetKey: string, targetFirstBlockId: string) => {
+    e.preventDefault();
+    if (!groupDragFirstId) return handleGroupDragEnd();
+    if (groupDragFirstId === targetFirstBlockId) return handleGroupDragEnd();
+
+    const blocks = [...(activeChapter?.blocks || [])];
+    const startIdx = blocks.findIndex((b) => b.id === groupDragFirstId);
+    if (startIdx < 0) return handleGroupDragEnd();
+
+    let endIdx = startIdx;
+    while (endIdx + 1 < blocks.length && blocks[endIdx + 1].type === "dialogue") {
+      endIdx++;
+    }
+
+    const groupIds = new Set(blocks.slice(startIdx, endIdx + 1).map((b) => b.id));
+    const draggedGroup = blocks.slice(startIdx, endIdx + 1);
+
+    // Find first block of target in the original array
+    const targetIdx = blocks.findIndex((b) => b.id === targetFirstBlockId);
+    if (targetIdx < 0) return handleGroupDragEnd();
+    // If target is inside dragged group, skip
+    if (groupIds.has(targetFirstBlockId)) return handleGroupDragEnd();
+
+    const remaining = blocks.filter((b) => !groupIds.has(b.id));
+    const newTargetIdx = remaining.findIndex((b) => b.id === targetFirstBlockId);
+    // Insert after the target element's group/block
+    remaining.splice(newTargetIdx + 1, 0, ...draggedGroup);
+    updateBlocks(remaining);
+    handleGroupDragEnd();
+  };
 
   /* ── Grouped blocks ── */
   const blockGroups = useMemo(
@@ -259,7 +333,7 @@ export function ChapterManagement({
           <button
             key={type}
             onMouseDown={(e) => {
-              e.preventDefault(); // keep focus on textarea
+              e.preventDefault();
               addBlockAt(type, afterIndex);
             }}
             className="flex items-center gap-0.5 px-2 py-0.5 rounded-lg text-[11px] font-semibold text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
@@ -367,16 +441,28 @@ export function ChapterManagement({
               const { block, index } = group;
               const isDragging = dragBlockId === block.id;
               const isDragOver = dragOverBlockId === block.id;
+              const isGroupDragOver = groupDragOverKey === block.id;
 
               return (
                 <div key={block.id}>
                   <div
                     {...dragAttrs(block)}
+                    onDragOver={(e) => {
+                      handleDragOver(e, block.id);
+                      handleGroupDragOver(e, block.id);
+                    }}
+                    onDrop={(e) => {
+                      if (groupDragFirstId) {
+                        handleGroupDrop(e, block.id, block.id);
+                      } else {
+                        handleDrop(e, block.id);
+                      }
+                    }}
                     className={`block-card ${
                       block.type === "narration" ? "block-narration" : "block-song"
                     } transition-all duration-150 ${
                       isDragging ? "opacity-40 scale-[0.98]" : ""
-                    } ${isDragOver ? "ring-2 ring-primary/40" : ""}`}
+                    } ${isDragOver || isGroupDragOver ? "ring-2 ring-primary/40" : ""}`}
                   >
                     {/* Header */}
                     <div className="flex items-center justify-between">
@@ -426,28 +512,51 @@ export function ChapterManagement({
                               key={lyric.id}
                               className="flex gap-2 items-start"
                             >
-                              <CharacterMultiSelect
-                                characters={characters}
-                                selected={lyric.characters}
-                                onChange={(ids) =>
-                                  updateLyric(block.id, lyric.id, {
-                                    characters: ids,
-                                  })
-                                }
-                                placeholder={t("chapters.selectSinger")}
-                                compact
-                              />
-                              <AutoResizeTextarea
-                                value={lyric.content}
-                                onChange={(val) =>
-                                  updateLyric(block.id, lyric.id, {
-                                    content: val,
-                                  })
-                                }
-                                placeholder={t("chapters.lyric.placeholder")}
-                                className="field-textarea flex-1"
-                                minRows={1}
-                              />
+                              {lyric.type === "narration" ? (
+                                /* Song-internal stage direction */
+                                <>
+                                  <span className="text-[10px] font-bold text-muted-foreground/60 bg-muted/60 rounded px-1.5 py-1.5 shrink-0 mt-0.5 whitespace-nowrap">
+                                    {t("chapters.narration")}
+                                  </span>
+                                  <AutoResizeTextarea
+                                    value={lyric.content}
+                                    onChange={(val) =>
+                                      updateLyric(block.id, lyric.id, {
+                                        content: val,
+                                      })
+                                    }
+                                    placeholder={t("chapters.songNarration.placeholder")}
+                                    className="field-textarea flex-1 italic text-muted-foreground"
+                                    minRows={1}
+                                  />
+                                </>
+                              ) : (
+                                /* Regular lyric line */
+                                <>
+                                  <CharacterMultiSelect
+                                    characters={characters}
+                                    selected={lyric.characters}
+                                    onChange={(ids) =>
+                                      updateLyric(block.id, lyric.id, {
+                                        characters: ids,
+                                      })
+                                    }
+                                    placeholder={t("chapters.selectSinger")}
+                                    compact
+                                  />
+                                  <AutoResizeTextarea
+                                    value={lyric.content}
+                                    onChange={(val) =>
+                                      updateLyric(block.id, lyric.id, {
+                                        content: val,
+                                      })
+                                    }
+                                    placeholder={t("chapters.lyric.placeholder")}
+                                    className="field-textarea flex-1"
+                                    minRows={1}
+                                  />
+                                </>
+                              )}
                               <button
                                 onClick={() => deleteLyric(block.id, lyric.id)}
                                 className="text-muted-foreground/30 hover:text-destructive transition-colors p-1.5 rounded-lg hover:bg-destructive/10 shrink-0"
@@ -456,13 +565,22 @@ export function ChapterManagement({
                               </button>
                             </div>
                           ))}
-                          <button
-                            onClick={() => addLyric(block.id)}
-                            className="flex items-center gap-1.5 text-sm font-semibold text-accent-foreground/60 hover:text-primary transition-colors pt-1"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                            {t("chapters.addLyric")}
-                          </button>
+                          <div className="flex items-center gap-3 pt-1">
+                            <button
+                              onClick={() => addLyric(block.id)}
+                              className="flex items-center gap-1.5 text-sm font-semibold text-accent-foreground/60 hover:text-primary transition-colors"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              {t("chapters.addLyric")}
+                            </button>
+                            <button
+                              onClick={() => addSongNarration(block.id)}
+                              className="flex items-center gap-1.5 text-sm font-semibold text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              {t("chapters.addSongNarration")}
+                            </button>
+                          </div>
                         </div>
                       </>
                     )}
@@ -474,11 +592,32 @@ export function ChapterManagement({
 
             /* ── Dialogue group ── */
             const { blocks: dlgBlocks, lastIndex } = group;
+            const groupKey = `dg-${dlgBlocks[0].id}`;
+            const isGroupDragging = groupDragFirstId === dlgBlocks[0].id;
+            const isGroupDragOver = groupDragOverKey === groupKey;
+
             return (
-              <div key={`dg-${dlgBlocks[0].id}`}>
-                <div className="block-card block-dialogue">
-                  {/* Group header */}
+              <div key={groupKey}>
+                <div
+                  onDragOver={(e) => handleGroupDragOver(e, groupKey)}
+                  onDrop={(e) => {
+                    if (groupDragFirstId) {
+                      handleGroupDrop(e, groupKey, dlgBlocks[0].id);
+                    }
+                  }}
+                  className={`block-card block-dialogue transition-all duration-150 ${
+                    isGroupDragging ? "opacity-40 scale-[0.98]" : ""
+                  } ${isGroupDragOver ? "ring-2 ring-primary/40" : ""}`}
+                >
+                  {/* Group header with group drag grip */}
                   <div className="flex items-center gap-2 text-sm font-bold text-foreground/70 mb-2">
+                    <GripVertical
+                      draggable
+                      onDragStart={(e) => handleGroupDragStart(e, dlgBlocks[0].id)}
+                      onDragEnd={handleGroupDragEnd}
+                      className="w-4 h-4 text-muted-foreground/30 hover:text-muted-foreground/70 cursor-grab active:cursor-grabbing shrink-0"
+                      title={t("blocks.dragTooltip")}
+                    />
                     <span>💬</span>
                     {t("chapters.dialogue")}
                   </div>

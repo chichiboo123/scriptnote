@@ -86,7 +86,7 @@ const MusicalScript = () => {
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               className="min-w-0 text-left"
             >
-              <h1 className="text-base sm:text-xl font-title text-primary tracking-tight truncate hover:opacity-70 transition-opacity">
+              <h1 className="text-2xl sm:text-3xl font-title text-primary tracking-tight truncate hover:opacity-70 transition-opacity">
                 {t("header.title")}
               </h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">

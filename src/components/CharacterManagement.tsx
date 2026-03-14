@@ -62,13 +62,19 @@ export function CharacterManagement({ characters, onChange }: CharacterManagemen
             {characters.map((char) => (
               <div
                 key={char.id}
-                className={`flex flex-col sm:flex-row items-start sm:items-center gap-2.5 p-3.5 rounded-2xl border-2 animate-pop ${char.colorClass}`}
+                className={`flex flex-col sm:flex-row items-start sm:items-center gap-2.5 p-3.5 rounded-2xl border-2 animate-pop ${char.colorClass} ${
+                  char.name.trim() === "" ? "border-destructive/40" : ""
+                }`}
               >
                 <input
                   value={char.name}
                   onChange={(e) => updateCharacter(char.id, "name", e.target.value)}
                   placeholder={t("characters.name.placeholder")}
-                  className="bg-card/80 rounded-xl px-3 py-2 text-sm font-bold w-full sm:w-32 border-2 border-transparent focus:border-primary/30 focus:outline-none transition-colors"
+                  className={`bg-card/80 rounded-xl px-3 py-2 text-sm font-bold w-full sm:w-32 border-2 focus:outline-none transition-colors ${
+                    char.name.trim() === ""
+                      ? "border-destructive/50 focus:border-destructive"
+                      : "border-transparent focus:border-primary/30"
+                  }`}
                 />
                 <input
                   value={char.description}
