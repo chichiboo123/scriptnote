@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Character, CHARACTER_SOLID_COLORS, TOGETHER_ID } from "@/types/script";
 import { ChevronDown, Check } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CharacterMultiSelectProps {
   characters: Character[];
@@ -24,6 +25,7 @@ export function CharacterMultiSelect({
 }: CharacterMultiSelectProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   const isAllTogether = selected.includes(TOGETHER_ID);
 
@@ -55,7 +57,7 @@ export function CharacterMultiSelect({
   const selectedChars = characters.filter((c) => selected.includes(c.id));
 
   const displayLabel = () => {
-    if (isAllTogether) return "다함께";
+    if (isAllTogether) return t("characters.together");
     if (selectedChars.length === 0) return null;
     return selectedChars.map((c) => c.name || c.id).join(", ");
   };
@@ -63,13 +65,14 @@ export function CharacterMultiSelect({
   const label = displayLabel();
 
   return (
-    <div ref={ref} className="relative">
+    <div
+      ref={ref}
+      className={`${compact ? "relative w-full max-w-[9rem] sm:max-w-[10rem]" : "relative w-full sm:w-48"}`}
+    >
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className={`${
-          compact ? "w-32" : "w-full sm:w-48"
-        } h-9 text-sm bg-white border-2 border-border/40 rounded-xl px-3 flex items-center justify-between gap-2 hover:border-primary/40 transition-colors`}
+        className="w-full h-9 sm:h-10 text-sm bg-white border-2 border-border/40 rounded-xl px-3 flex items-center justify-between gap-2 hover:border-primary/40 transition-colors"
       >
         <div className="flex items-center gap-1.5 min-w-0 flex-1">
           {isAllTogether && (
@@ -102,7 +105,7 @@ export function CharacterMultiSelect({
       </button>
 
       {open && (
-        <div className="absolute z-50 top-full mt-1 bg-card border-2 border-border/60 rounded-xl shadow-lg overflow-hidden min-w-[170px] animate-pop">
+        <div className="absolute z-50 top-full left-0 mt-1 bg-card border-2 border-border/60 rounded-xl shadow-lg overflow-hidden w-full min-w-[170px] max-w-[85vw] sm:max-w-none animate-pop">
           {/* Characters first */}
           {characters.map((char, idx) => {
             const isSelected = !isAllTogether && selected.includes(char.id);
@@ -159,7 +162,7 @@ export function CharacterMultiSelect({
             >
               {isAllTogether && <Check className="w-2.5 h-2.5 text-white" />}
             </div>
-            <span className="text-xs">✨ 다함께</span>
+            <span className="text-xs">✨ {t("characters.together")}</span>
           </button>
         </div>
       )}

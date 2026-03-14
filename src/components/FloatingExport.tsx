@@ -57,28 +57,10 @@ export function FloatingExport({ scriptData, onShareLink }: FloatingExportProps)
   // Items listed in display order (top → bottom when open = closest to button first)
   const items = [
     {
-      label: t("actions.print"),
-      icon: Printer,
-      color: "text-slate-600",
-      onClick: () => run(() => window.print()),
-    },
-    {
-      label: t("actions.fullView"),
-      icon: ExternalLink,
-      color: "text-amber-600",
-      onClick: () => run(() => openFullView(scriptData)),
-    },
-    {
-      label: t("actions.download.pdf"),
-      icon: Download,
-      color: "text-red-500",
-      onClick: () => run(() => exportToPdf(scriptData)),
-    },
-    {
-      label: t("actions.download.txt"),
-      icon: FileText,
-      color: "text-blue-500",
-      onClick: () => run(() => exportToTxt(scriptData)),
+      label: t("actions.copy"),
+      icon: Copy,
+      color: "text-teal-600",
+      onClick: handleCopy,
     },
     {
       label: t("actions.shareLink"),
@@ -87,12 +69,31 @@ export function FloatingExport({ scriptData, onShareLink }: FloatingExportProps)
       onClick: handleShare,
     },
     {
-      label: t("actions.copy"),
-      icon: Copy,
-      color: "text-teal-600",
-      onClick: handleCopy,
+      label: t("actions.download.txt"),
+      icon: FileText,
+      color: "text-blue-500",
+      onClick: () => run(() => exportToTxt(scriptData)),
+    },
+    {
+      label: t("actions.download.pdf"),
+      icon: Download,
+      color: "text-red-500",
+      onClick: () => run(() => exportToPdf(scriptData)),
+    },
+    {
+      label: t("actions.fullView"),
+      icon: ExternalLink,
+      color: "text-amber-600",
+      onClick: () => run(() => openFullView(scriptData)),
+    },
+    {
+      label: t("actions.print"),
+      icon: Printer,
+      color: "text-slate-600",
+      onClick: () => run(() => window.print()),
     },
   ];
+
 
   return (
     <div
