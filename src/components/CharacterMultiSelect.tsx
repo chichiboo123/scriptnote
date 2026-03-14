@@ -39,6 +39,7 @@ export function CharacterMultiSelect({
 
   const toggleTogether = () => {
     onChange(isAllTogether ? [] : [TOGETHER_ID]);
+    setOpen(false); // close after selection
   };
 
   const toggleChar = (id: string) => {
@@ -48,6 +49,7 @@ export function CharacterMultiSelect({
     } else {
       onChange([...without, id]);
     }
+    setOpen(false); // close after single character click
   };
 
   const selectedChars = characters.filter((c) => selected.includes(c.id));
@@ -101,32 +103,7 @@ export function CharacterMultiSelect({
 
       {open && (
         <div className="absolute z-50 top-full mt-1 bg-card border-2 border-border/60 rounded-xl shadow-lg overflow-hidden min-w-[170px] animate-pop">
-          {/* 다함께 */}
-          <button
-            type="button"
-            onClick={toggleTogether}
-            className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-semibold transition-colors ${
-              isAllTogether
-                ? "bg-amber-50 text-amber-700"
-                : "hover:bg-muted text-foreground/80"
-            }`}
-          >
-            <div
-              className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
-                isAllTogether
-                  ? "bg-amber-400 border-amber-400"
-                  : "border-border"
-              }`}
-            >
-              {isAllTogether && <Check className="w-2.5 h-2.5 text-white" />}
-            </div>
-            <span className="text-xs">✨ 다함께</span>
-          </button>
-
-          {characters.length > 0 && (
-            <div className="border-t border-border/30" />
-          )}
-
+          {/* Characters first */}
           {characters.map((char, idx) => {
             const isSelected = !isAllTogether && selected.includes(char.id);
             const dotColor = CHARACTER_SOLID_COLORS[idx % CHARACTER_SOLID_COLORS.length];
@@ -159,6 +136,31 @@ export function CharacterMultiSelect({
               </button>
             );
           })}
+
+          {/* 다함께 at bottom */}
+          {characters.length > 0 && (
+            <div className="border-t border-border/30" />
+          )}
+          <button
+            type="button"
+            onClick={toggleTogether}
+            className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-semibold transition-colors ${
+              isAllTogether
+                ? "bg-amber-50 text-amber-700"
+                : "hover:bg-muted text-foreground/80"
+            }`}
+          >
+            <div
+              className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
+                isAllTogether
+                  ? "bg-amber-400 border-amber-400"
+                  : "border-border"
+              }`}
+            >
+              {isAllTogether && <Check className="w-2.5 h-2.5 text-white" />}
+            </div>
+            <span className="text-xs">✨ 다함께</span>
+          </button>
         </div>
       )}
     </div>
