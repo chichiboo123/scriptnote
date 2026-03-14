@@ -231,8 +231,10 @@ export function ChapterManagement({
 
   /* ── Individual block Drag & Drop ── */
   const handleDragStart = (e: React.DragEvent, id: string) => {
+    if (groupDragFirstId) return; // block drag blocked while group drag active
     setDragBlockId(id);
     e.dataTransfer.effectAllowed = "move";
+    e.stopPropagation();
   };
   const handleDragEnd = () => {
     setDragBlockId(null);
@@ -245,6 +247,7 @@ export function ChapterManagement({
   };
   const handleDrop = (e: React.DragEvent, targetId: string) => {
     e.preventDefault();
+    e.stopPropagation(); // prevent bubbling to group container
     if (groupDragFirstId) return; // group drag in progress, skip
     if (!dragBlockId || dragBlockId === targetId) return handleDragEnd();
     const blocks = [...(activeChapter?.blocks || [])];
@@ -268,6 +271,7 @@ export function ChapterManagement({
   /* ── Group Drag & Drop ── */
   const handleGroupDragStart = (e: React.DragEvent, firstBlockId: string) => {
     setGroupDragFirstId(firstBlockId);
+    setDragBlockId(null);
     e.dataTransfer.effectAllowed = "move";
     e.stopPropagation();
   };
@@ -282,6 +286,7 @@ export function ChapterManagement({
   };
   const handleGroupDrop = (e: React.DragEvent, targetKey: string, targetFirstBlockId: string) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!groupDragFirstId) return handleGroupDragEnd();
     if (groupDragFirstId === targetFirstBlockId) return handleGroupDragEnd();
 
@@ -295,18 +300,25 @@ export function ChapterManagement({
     }
 
     const groupIds = new Set(blocks.slice(startIdx, endIdx + 1).map((b) => b.id));
-    const draggedGroup = blocks.slice(startIdx, endIdx + 1);
-
-    // Find first block of target in the original array
-    const targetIdx = blocks.findIndex((b) => b.id === targetFirstBlockId);
-    if (targetIdx < 0) return handleGroupDragEnd();
-    // If target is inside dragged group, skip
     if (groupIds.has(targetFirstBlockId)) return handleGroupDragEnd();
 
+    const draggedGroup = blocks.slice(startIdx, endIdx + 1);
     const remaining = blocks.filter((b) => !groupIds.has(b.id));
+
     const newTargetIdx = remaining.findIndex((b) => b.id === targetFirstBlockId);
-    // Insert after the target element's group/block
-    remaining.splice(newTargetIdx + 1, 0, ...draggedGroup);
+    if (newTargetIdx < 0) return handleGroupDragEnd();
+
+    // If target is part of a dialogue group, advance to end of that group
+    // so we insert after the entire group, not in the middle of it
+    let insertAfter = newTargetIdx;
+    while (
+      insertAfter + 1 < remaining.length &&
+      remaining[insertAfter + 1].type === "dialogue"
+    ) {
+      insertAfter++;
+    }
+
+    remaining.splice(insertAfter + 1, 0, ...draggedGroup);
     updateBlocks(remaining);
     handleGroupDragEnd();
   };
@@ -611,13 +623,16 @@ export function ChapterManagement({
                 >
                   {/* Group header with group drag grip */}
                   <div className="flex items-center gap-2 text-sm font-bold text-foreground/70 mb-2">
-                    <GripVertical
+                    {/* SVG can't be draggable reliably — wrap in span */}
+                    <span
                       draggable
                       onDragStart={(e) => handleGroupDragStart(e, dlgBlocks[0].id)}
                       onDragEnd={handleGroupDragEnd}
-                      className="w-4 h-4 text-muted-foreground/30 hover:text-muted-foreground/70 cursor-grab active:cursor-grabbing shrink-0"
+                      className="inline-flex cursor-grab active:cursor-grabbing shrink-0"
                       title={t("blocks.dragTooltip")}
-                    />
+                    >
+                      <GripVertical className="w-4 h-4 text-muted-foreground/30 hover:text-muted-foreground/70" />
+                    </span>
                     <span>💬</span>
                     {t("chapters.dialogue")}
                   </div>
