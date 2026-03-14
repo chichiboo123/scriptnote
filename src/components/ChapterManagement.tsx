@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Chapter, Block, LyricLine, Character } from "@/types/script";
 import { CharacterMultiSelect } from "@/components/CharacterMultiSelect";
-import { Plus, X, GripVertical, Layers } from "lucide-react";
+import { Plus, X, GripVertical, Layers, ChevronUp, ChevronDown } from "lucide-react";
 
 /* ── Auto-resize textarea ── */
 function AutoResizeTextarea({
@@ -84,6 +84,7 @@ export function ChapterManagement({
   // Individual block drag
   const [dragBlockId, setDragBlockId] = useState<string | null>(null);
   const [dragOverBlockId, setDragOverBlockId] = useState<string | null>(null);
+  const [dragScopeIds, setDragScopeIds] = useState<string[] | null>(null);
   // Group drag
   const [groupDragFirstId, setGroupDragFirstId] = useState<string | null>(null);
   const [groupDragOverKey, setGroupDragOverKey] = useState<string | null>(null);
@@ -230,26 +231,53 @@ export function ChapterManagement({
   };
 
   /* ── Individual block Drag & Drop ── */
-  const handleDragStart = (e: React.DragEvent, id: string) => {
+  const handleDragStart = (e: React.DragEvent, id: string, scopeIds?: string[]) => {
     if (groupDragFirstId) return; // block drag blocked while group drag active
     setDragBlockId(id);
+    setDragScopeIds(scopeIds ?? null);
     e.dataTransfer.effectAllowed = "move";
     e.stopPropagation();
   };
   const handleDragEnd = () => {
     setDragBlockId(null);
     setDragOverBlockId(null);
+    setDragScopeIds(null);
   };
-  const handleDragOver = (e: React.DragEvent, id: string) => {
+  const handleDragOver = (e: React.DragEvent, id: string, scopeIds?: string[]) => {
     e.preventDefault();
     if (groupDragFirstId) return; // group drag in progress, skip
+    if (
+      dragScopeIds &&
+      (!scopeIds ||
+        dragScopeIds.length !== scopeIds.length ||
+        !dragScopeIds.every((scopeId) => scopeIds.includes(scopeId)))
+    ) {
+      return;
+    }
     if (dragBlockId !== id) setDragOverBlockId(id);
   };
-  const handleDrop = (e: React.DragEvent, targetId: string) => {
+  const handleDrop = (e: React.DragEvent, targetId: string, scopeIds?: string[]) => {
     e.preventDefault();
     e.stopPropagation(); // prevent bubbling to group container
     if (groupDragFirstId) return; // group drag in progress, skip
+
+    if (
+      dragScopeIds &&
+      (!scopeIds ||
+        dragScopeIds.length !== scopeIds.length ||
+        !dragScopeIds.every((scopeId) => scopeIds.includes(scopeId)))
+    ) {
+      return handleDragEnd();
+    }
+
     if (!dragBlockId || dragBlockId === targetId) return handleDragEnd();
+
+    if (dragScopeIds) {
+      if (!dragScopeIds.includes(dragBlockId) || !dragScopeIds.includes(targetId)) {
+        return handleDragEnd();
+      }
+    }
+
     const blocks = [...(activeChapter?.blocks || [])];
     const from = blocks.findIndex((b) => b.id === dragBlockId);
     const to = blocks.findIndex((b) => b.id === targetId);
@@ -260,13 +288,50 @@ export function ChapterManagement({
     handleDragEnd();
   };
 
-  const dragAttrs = (block: Block) => ({
+  const dragAttrs = (block: Block, scopeIds?: string[]) => ({
     draggable: true as const,
-    onDragStart: (e: React.DragEvent) => handleDragStart(e, block.id),
+    onDragStart: (e: React.DragEvent) => handleDragStart(e, block.id, scopeIds),
     onDragEnd: handleDragEnd,
-    onDragOver: (e: React.DragEvent) => handleDragOver(e, block.id),
-    onDrop: (e: React.DragEvent) => handleDrop(e, block.id),
+    onDragOver: (e: React.DragEvent) => handleDragOver(e, block.id, scopeIds),
+    onDrop: (e: React.DragEvent) => handleDrop(e, block.id, scopeIds),
   });
+
+  const moveGroup = (firstBlockId: string, direction: -1 | 1) => {
+    const blocks = [...(activeChapter?.blocks || [])];
+    const groups = groupBlocks(blocks);
+    const currentIdx = groups.findIndex((g) =>
+      g.type === "single" ? g.block.id === firstBlockId : g.blocks[0].id === firstBlockId
+    );
+    if (currentIdx < 0) return;
+
+    const targetIdx = currentIdx + direction;
+    if (targetIdx < 0 || targetIdx >= groups.length) return;
+
+    [groups[currentIdx], groups[targetIdx]] = [groups[targetIdx], groups[currentIdx]];
+
+    const reordered = groups.flatMap((g) => (g.type === "single" ? [g.block] : g.blocks));
+    updateBlocks(reordered);
+  };
+
+  const moveDialogueInGroup = (groupFirstBlockId: string, blockId: string, direction: -1 | 1) => {
+    const blocks = [...(activeChapter?.blocks || [])];
+    const startIdx = blocks.findIndex((b) => b.id === groupFirstBlockId);
+    if (startIdx < 0) return;
+
+    let endIdx = startIdx;
+    while (endIdx + 1 < blocks.length && blocks[endIdx + 1].type === "dialogue") {
+      endIdx++;
+    }
+
+    const group = blocks.slice(startIdx, endIdx + 1);
+    const idx = group.findIndex((b) => b.id === blockId);
+    const targetIdx = idx + direction;
+    if (idx < 0 || targetIdx < 0 || targetIdx >= group.length) return;
+
+    [group[idx], group[targetIdx]] = [group[targetIdx], group[idx]];
+    blocks.splice(startIdx, group.length, ...group);
+    updateBlocks(blocks);
+  };
 
   /* ── Group Drag & Drop ── */
   const handleGroupDragStart = (e: React.DragEvent, firstBlockId: string) => {
@@ -486,12 +551,28 @@ export function ChapterManagement({
                         <span>{blockConfig[block.type].emoji}</span>
                         {blockConfig[block.type].label}
                       </span>
-                      <button
-                        onClick={() => deleteBlock(block.id)}
-                        className="text-muted-foreground/30 hover:text-destructive transition-colors p-1 rounded-lg hover:bg-destructive/10"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-0.5">
+                        <button
+                          onClick={() => moveGroup(block.id, -1)}
+                          className="text-muted-foreground/40 hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted"
+                          title="Move up"
+                        >
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => moveGroup(block.id, 1)}
+                          className="text-muted-foreground/40 hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted"
+                          title="Move down"
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => deleteBlock(block.id)}
+                          className="text-muted-foreground/30 hover:text-destructive transition-colors p-1 rounded-lg hover:bg-destructive/10"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
 
                     {/* Narration */}
@@ -635,6 +716,22 @@ export function ChapterManagement({
                     </span>
                     <span>💬</span>
                     {t("chapters.dialogue")}
+                    <div className="ml-auto flex items-center gap-0.5">
+                      <button
+                        onClick={() => moveGroup(dlgBlocks[0].id, -1)}
+                        className="text-muted-foreground/40 hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted"
+                        title="Move group up"
+                      >
+                        <ChevronUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => moveGroup(dlgBlocks[0].id, 1)}
+                        className="text-muted-foreground/40 hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted"
+                        title="Move group down"
+                      >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -648,7 +745,7 @@ export function ChapterManagement({
                       return (
                         <div
                           key={block.id}
-                          {...dragAttrs(block)}
+                          {...dragAttrs(block, dlgBlocks.map((b) => b.id))}
                           className={`flex gap-2 items-start transition-all duration-150 rounded-xl ${
                             isDragging ? "opacity-40" : ""
                           } ${
@@ -681,6 +778,20 @@ export function ChapterManagement({
                               minRows={1}
                             />
                           </div>
+                          <button
+                            onClick={() => moveDialogueInGroup(dlgBlocks[0].id, block.id, -1)}
+                            className="text-muted-foreground/40 hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted shrink-0 mt-1"
+                            title="Move up"
+                          >
+                            <ChevronUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => moveDialogueInGroup(dlgBlocks[0].id, block.id, 1)}
+                            className="text-muted-foreground/40 hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted shrink-0 mt-1"
+                            title="Move down"
+                          >
+                            <ChevronDown className="w-3.5 h-3.5" />
+                          </button>
                           <button
                             onClick={() => deleteBlock(block.id)}
                             className="text-muted-foreground/30 hover:text-destructive transition-colors p-1.5 rounded-lg hover:bg-destructive/10 shrink-0 mt-1"
