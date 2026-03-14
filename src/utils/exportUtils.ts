@@ -1,8 +1,14 @@
-import { ScriptData, Character } from "@/types/script";
+import { ScriptData, Character, TOGETHER_ID } from "@/types/script";
 import jsPDF from "jspdf";
 
 function getCharacterName(characters: Character[], id: string): string {
+  if (id === TOGETHER_ID) return "다함께";
   return characters.find((c) => c.id === id)?.name || id;
+}
+
+function resolveNames(characters: Character[], ids: string[]): string {
+  if (ids.length === 0) return "???";
+  return ids.map((id) => getCharacterName(characters, id)).join(", ");
 }
 
 function formatScriptForExport(data: ScriptData): string {
@@ -38,18 +44,17 @@ function formatScriptForExport(data: ScriptData): string {
         case "narration":
           lines.push(`[해설] ${block.content}`);
           break;
-        case "dialogue":
-          const charName = block.character
-            ? getCharacterName(characters, block.character)
-            : "???";
+        case "dialogue": {
+          // Support both new `characters[]` and legacy `character` field
+          const dialogueIds = block.characters ?? (block.character ? [block.character] : []);
+          const charName = resolveNames(characters, dialogueIds);
           lines.push(`${charName}: ${block.content}`);
           break;
+        }
         case "song":
           lines.push(`[노래] ${block.songTitle || ""}`);
           (block.lyrics || []).forEach((l) => {
-            const singer = l.characters[0]
-              ? getCharacterName(characters, l.characters[0])
-              : "???";
+            const singer = resolveNames(characters, l.characters);
             lines.push(`${singer}: ${l.content}`);
           });
           break;

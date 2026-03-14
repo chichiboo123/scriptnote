@@ -22,6 +22,8 @@ export interface Block {
   id: string;
   type: "narration" | "dialogue" | "song";
   content: string;
+  characters?: string[]; // multi-select; TOGETHER_ID means 다함께
+  /** @deprecated use characters instead */
   character?: string;
   songTitle?: string;
   lyrics?: LyricLine[];
@@ -44,6 +46,27 @@ export const initialScriptData: ScriptData = {
   characters: [],
   chapters: [{ id: "chapter-1", title: "", blocks: [] }],
 };
+
+export const TOGETHER_ID = "__all__";
+
+// Solid dot colors matching CHARACTER_COLORS order
+export const CHARACTER_SOLID_COLORS = [
+  "#f472b6", // pink
+  "#34d399", // emerald
+  "#38bdf8", // sky
+  "#facc15", // yellow
+  "#a78bfa", // violet
+  "#fb923c", // orange
+  "#2dd4bf", // teal
+  "#f87171", // red
+  "#818cf8", // indigo
+  "#a3e635", // lime
+  "#e879f9", // fuchsia
+  "#22d3ee", // cyan
+  "#fb7185", // rose
+  "#fbbf24", // amber
+  "#60a5fa", // blue
+];
 
 export const CHARACTER_COLORS = [
   "bg-pink-100 border-pink-200 text-pink-800",

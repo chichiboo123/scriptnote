@@ -1,13 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Chapter, Block, LyricLine, Character } from "@/types/script";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { CharacterMultiSelect } from "@/components/CharacterMultiSelect";
 import {
   Layers,
   Plus,
@@ -53,31 +46,52 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
       id: `block-${Date.now()}`,
       type,
       content: "",
-      ...(type === "dialogue" ? { character: "" } : {}),
+      ...(type === "dialogue" ? { characters: [] } : {}),
       ...(type === "song" ? { songTitle: "", lyrics: [] } : {}),
     };
     onChange(chapters.map((c) => c.id === chapterId ? { ...c, blocks: [...c.blocks, newBlock] } : c));
   };
 
   const updateBlock = (chapterId: string, blockId: string, updates: Partial<Block>) => {
-    onChange(chapters.map((c) => c.id === chapterId ? { ...c, blocks: c.blocks.map((b) => b.id === blockId ? { ...b, ...updates } : b) } : c));
+    onChange(chapters.map((c) => c.id === chapterId
+      ? { ...c, blocks: c.blocks.map((b) => b.id === blockId ? { ...b, ...updates } : b) }
+      : c
+    ));
   };
 
   const deleteBlock = (chapterId: string, blockId: string) => {
-    onChange(chapters.map((c) => c.id === chapterId ? { ...c, blocks: c.blocks.filter((b) => b.id !== blockId) } : c));
+    onChange(chapters.map((c) => c.id === chapterId
+      ? { ...c, blocks: c.blocks.filter((b) => b.id !== blockId) }
+      : c
+    ));
   };
 
   const addLyricLine = (chapterId: string, blockId: string) => {
     const newLine: LyricLine = { id: `lyric-${Date.now()}`, characters: [], content: "" };
-    onChange(chapters.map((c) => c.id === chapterId ? { ...c, blocks: c.blocks.map((b) => b.id === blockId ? { ...b, lyrics: [...(b.lyrics || []), newLine] } : b) } : c));
+    onChange(chapters.map((c) => c.id === chapterId
+      ? { ...c, blocks: c.blocks.map((b) => b.id === blockId ? { ...b, lyrics: [...(b.lyrics || []), newLine] } : b) }
+      : c
+    ));
   };
 
   const updateLyricLine = (chapterId: string, blockId: string, lyricId: string, updates: Partial<LyricLine>) => {
-    onChange(chapters.map((c) => c.id === chapterId ? { ...c, blocks: c.blocks.map((b) => b.id === blockId ? { ...b, lyrics: (b.lyrics || []).map((l) => l.id === lyricId ? { ...l, ...updates } : l) } : b) } : c));
+    onChange(chapters.map((c) => c.id === chapterId
+      ? { ...c, blocks: c.blocks.map((b) => b.id === blockId
+          ? { ...b, lyrics: (b.lyrics || []).map((l) => l.id === lyricId ? { ...l, ...updates } : l) }
+          : b
+        ) }
+      : c
+    ));
   };
 
   const deleteLyricLine = (chapterId: string, blockId: string, lyricId: string) => {
-    onChange(chapters.map((c) => c.id === chapterId ? { ...c, blocks: c.blocks.map((b) => b.id === blockId ? { ...b, lyrics: (b.lyrics || []).filter((l) => l.id !== lyricId) } : b) } : c));
+    onChange(chapters.map((c) => c.id === chapterId
+      ? { ...c, blocks: c.blocks.map((b) => b.id === blockId
+          ? { ...b, lyrics: (b.lyrics || []).filter((l) => l.id !== lyricId) }
+          : b
+        ) }
+      : c
+    ));
   };
 
   const blockConfig = {
@@ -161,6 +175,10 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
 
                   {chapter.blocks.map((block) => {
                     const cfg = blockConfig[block.type];
+                    // Backward compat: support old single `character` field
+                    const dialogueChars: string[] =
+                      block.characters ?? (block.character ? [block.character] : []);
+
                     return (
                       <div key={block.id} className={`block-card ${cfg.class} animate-pop`}>
                         <div className="flex items-center justify-between">
@@ -177,28 +195,23 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
                         </div>
 
                         {block.type === "dialogue" && (
-                          <Select
-                            value={block.character || ""}
-                            onValueChange={(val) => updateBlock(chapter.id, block.id, { character: val })}
-                          >
-                            <SelectTrigger className="w-full sm:w-44 h-9 text-sm bg-card/80 border-2 border-border/40 rounded-xl">
-                              <SelectValue placeholder={t("chapters.selectCharacter")} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {characters.map((c) => (
-                                <SelectItem key={c.id} value={c.id} className="text-sm">
-                                  {c.name || c.id}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <CharacterMultiSelect
+                            characters={characters}
+                            selected={dialogueChars}
+                            onChange={(ids) => updateBlock(chapter.id, block.id, { characters: ids })}
+                            placeholder={t("chapters.selectCharacter")}
+                          />
                         )}
 
                         {(block.type === "narration" || block.type === "dialogue") && (
                           <textarea
                             value={block.content}
                             onChange={(e) => updateBlock(chapter.id, block.id, { content: e.target.value })}
-                            placeholder={block.type === "narration" ? t("chapters.narration.placeholder") : t("chapters.dialogue.placeholder")}
+                            placeholder={
+                              block.type === "narration"
+                                ? t("chapters.narration.placeholder")
+                                : t("chapters.dialogue.placeholder")
+                            }
                             className="field-textarea w-full min-h-[70px]"
                           />
                         )}
@@ -214,24 +227,20 @@ export function ChapterManagement({ chapters, characters, onChange }: ChapterMan
                             <div className="space-y-2 pl-3 border-l-[3px] border-accent/50 mt-2">
                               {(block.lyrics || []).map((lyric) => (
                                 <div key={lyric.id} className="flex gap-2 items-center">
-                                  <Select
-                                    value={lyric.characters[0] || ""}
-                                    onValueChange={(val) => updateLyricLine(chapter.id, block.id, lyric.id, { characters: [val] })}
-                                  >
-                                    <SelectTrigger className="w-28 h-9 text-sm bg-card/80 border-2 border-border/40 rounded-xl shrink-0">
-                                      <SelectValue placeholder={t("chapters.selectSinger")} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {characters.map((c) => (
-                                        <SelectItem key={c.id} value={c.id} className="text-sm">
-                                          {c.name || c.id}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
+                                  <CharacterMultiSelect
+                                    characters={characters}
+                                    selected={lyric.characters}
+                                    onChange={(ids) =>
+                                      updateLyricLine(chapter.id, block.id, lyric.id, { characters: ids })
+                                    }
+                                    placeholder={t("chapters.selectSinger")}
+                                    compact
+                                  />
                                   <input
                                     value={lyric.content}
-                                    onChange={(e) => updateLyricLine(chapter.id, block.id, lyric.id, { content: e.target.value })}
+                                    onChange={(e) =>
+                                      updateLyricLine(chapter.id, block.id, lyric.id, { content: e.target.value })
+                                    }
                                     placeholder={t("chapters.lyric.placeholder")}
                                     className="field-input flex-1"
                                   />

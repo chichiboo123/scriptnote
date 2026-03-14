@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import LZString from "lz-string";
 import logoImg from "@/assets/logo.png";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -24,6 +25,28 @@ const MusicalScript = () => {
   const [showHelp, setShowHelp] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
 
+  // Load shared state from URL ?data= param on first mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const encoded = params.get("data");
+    if (encoded) {
+      try {
+        const json = LZString.decompressFromEncodedURIComponent(encoded);
+        if (json) {
+          const parsed = JSON.parse(json) as ScriptData;
+          if (parsed.work && parsed.characters && parsed.chapters) {
+            setScriptData(parsed);
+            toast.success(t("actions.shareLink.loaded"));
+          }
+        }
+      } catch {
+        // ignore malformed data
+      }
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (langRef.current && !langRef.current.contains(e.target as Node)) {
@@ -39,6 +62,18 @@ const MusicalScript = () => {
     setShowResetModal(false);
   };
 
+  const handleShareLink = async () => {
+    const json = JSON.stringify(scriptData);
+    const compressed = LZString.compressToEncodedURIComponent(json);
+    const url = `${window.location.origin}${window.location.pathname}?data=${compressed}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(t("actions.shareLink.copied"));
+    } catch {
+      toast.error("클립보드 접근에 실패했습니다.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -46,14 +81,18 @@ const MusicalScript = () => {
         <div className="container max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <img src={logoImg} alt="Musical Script Note" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
-            <div className="min-w-0">
-              <h1 className="text-base sm:text-xl font-title text-primary tracking-tight truncate">
+            {/* 타이틀 클릭 → 맨 위로 스크롤 */}
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="min-w-0 text-left"
+            >
+              <h1 className="text-base sm:text-xl font-title text-primary tracking-tight truncate hover:opacity-70 transition-opacity">
                 {t("header.title")}
               </h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                 {t("header.subtitle")}
               </p>
-            </div>
+            </button>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             {/* JSON Save */}
@@ -137,7 +176,7 @@ const MusicalScript = () => {
           characters={scriptData.characters}
           onChange={(chapters) => setScriptData((prev) => ({ ...prev, chapters }))}
         />
-        <ActionButtons scriptData={scriptData} />
+        <ActionButtons scriptData={scriptData} onShareLink={handleShareLink} />
 
         {/* Reset */}
         <div className="flex justify-center no-print pt-2 pb-4">
