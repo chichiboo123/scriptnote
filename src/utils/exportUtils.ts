@@ -54,8 +54,12 @@ function formatScriptForExport(data: ScriptData): string {
         case "song":
           lines.push(`[노래] ${block.songTitle || ""}`);
           (block.lyrics || []).forEach((l) => {
-            const singer = resolveNames(characters, l.characters);
-            lines.push(`${singer}: ${l.content}`);
+            if (l.type === "narration") {
+              lines.push(`[해설] ${l.content}`);
+            } else {
+              const singer = resolveNames(characters, l.characters);
+              lines.push(`${singer}: ${l.content}`);
+            }
           });
           break;
       }

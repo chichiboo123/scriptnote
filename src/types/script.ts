@@ -14,6 +14,7 @@ export interface Character {
 
 export interface LyricLine {
   id: string;
+  type?: "lyric" | "narration"; // undefined = 'lyric' (backward compat)
   characters: string[];
   content: string;
 }
@@ -68,20 +69,21 @@ export const CHARACTER_SOLID_COLORS = [
   "#60a5fa", // blue
 ];
 
+// Lighter pastel palette: -50 bg, -200 border, -700 text for readability
 export const CHARACTER_COLORS = [
-  "bg-pink-100 border-pink-200 text-pink-800",
-  "bg-emerald-100 border-emerald-200 text-emerald-800",
-  "bg-sky-100 border-sky-200 text-sky-800",
-  "bg-yellow-100 border-yellow-200 text-yellow-800",
-  "bg-violet-100 border-violet-200 text-violet-800",
-  "bg-orange-100 border-orange-200 text-orange-800",
-  "bg-teal-100 border-teal-200 text-teal-800",
-  "bg-red-100 border-red-200 text-red-800",
-  "bg-indigo-100 border-indigo-200 text-indigo-800",
-  "bg-lime-100 border-lime-200 text-lime-800",
-  "bg-fuchsia-100 border-fuchsia-200 text-fuchsia-800",
-  "bg-cyan-100 border-cyan-200 text-cyan-800",
-  "bg-rose-100 border-rose-200 text-rose-800",
-  "bg-amber-100 border-amber-200 text-amber-800",
-  "bg-blue-100 border-blue-200 text-blue-800",
+  "bg-pink-50 border-pink-200 text-pink-700",
+  "bg-emerald-50 border-emerald-200 text-emerald-700",
+  "bg-sky-50 border-sky-200 text-sky-700",
+  "bg-yellow-50 border-yellow-200 text-yellow-700",
+  "bg-violet-50 border-violet-200 text-violet-700",
+  "bg-orange-50 border-orange-200 text-orange-700",
+  "bg-teal-50 border-teal-200 text-teal-700",
+  "bg-red-50 border-red-200 text-red-700",
+  "bg-indigo-50 border-indigo-200 text-indigo-700",
+  "bg-lime-50 border-lime-200 text-lime-700",
+  "bg-fuchsia-50 border-fuchsia-200 text-fuchsia-700",
+  "bg-cyan-50 border-cyan-200 text-cyan-700",
+  "bg-rose-50 border-rose-200 text-rose-700",
+  "bg-amber-50 border-amber-200 text-amber-700",
+  "bg-blue-50 border-blue-200 text-blue-700",
 ];
