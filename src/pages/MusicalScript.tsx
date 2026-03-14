@@ -7,7 +7,7 @@ import { ScriptData, initialScriptData } from "@/types/script";
 import { BasicInfo } from "@/components/BasicInfo";
 import { CharacterManagement } from "@/components/CharacterManagement";
 import { ChapterManagement } from "@/components/ChapterManagement";
-import { ActionButtons } from "@/components/ActionButtons";
+import { FloatingExport } from "@/components/FloatingExport";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { HelpModal } from "@/components/HelpModal";
 import { RotateCcw, Globe, HelpCircle, Save, FolderOpen } from "lucide-react";
@@ -176,7 +176,6 @@ const MusicalScript = () => {
           characters={scriptData.characters}
           onChange={(chapters) => setScriptData((prev) => ({ ...prev, chapters }))}
         />
-        <ActionButtons scriptData={scriptData} onShareLink={handleShareLink} />
 
         {/* Reset */}
         <div className="flex justify-center no-print pt-2 pb-4">
@@ -213,6 +212,9 @@ const MusicalScript = () => {
       />
 
       <HelpModal open={showHelp} onClose={() => setShowHelp(false)} />
+
+      {/* Floating export button */}
+      <FloatingExport scriptData={scriptData} onShareLink={handleShareLink} />
     </div>
   );
 };
